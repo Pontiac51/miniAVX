@@ -12,4 +12,4 @@ Remarks:
 
 The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
 
-2 sessions of the connector need to be started, one for TX, one for RX. The TX sessions needs to be started first as it resets Arduino.
+2 sessions of the connector need to be started, one for TX, one for RX. The TX session needs to be started first as it resets Arduino.
