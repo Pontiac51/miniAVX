@@ -1,4 +1,4 @@
-# miniAVX
+# miniAVX 1.05
 MSFS Radio and AP panel with Arduino
 
 Arduino code to be used with BitsAndDroids Connector and Library (v0.8.3.1).
