@@ -708,7 +708,6 @@ void drawLEDHdgBaro(){
 }
 
 void drawLEDCom(){
-  Serial.println("drawLED");
   if (!itemsMain[selItem].option){ // 1
     displayLEDfreq(connectorRX.getStandbyCom1());
   } else { // 2
