@@ -13,3 +13,11 @@ Remarks:
 The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
 
 2 sessions of the connector need to be started, one for TX, one for RX. The TX session needs to be started first as it resets Arduino.
+
+Libraries used:
+
+BitsAndDroids Connector - https://www.bitsanddroids.com/
+
+OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
+
+LedControl - https://www.arduinolibraries.info/libraries/led-control
