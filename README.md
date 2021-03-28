@@ -5,10 +5,10 @@ MSFS Radio and AP panel with Arduino
 Arduino code to be used with BitsAndDroids Connector and Library (v0.8.4).
 
 ***UPDATE 1.06***
-OBS 1 & 2 display now working
-GPS course display
-NAV1 and GPS Autopilot ON/OFF (NAV1 mode press OBS1, GPS mode press GPS)
-ALT and SPD can be switched between radar/indicated and indicated/ground
+* OBS 1 & 2 display now working
+* GPS course display
+* NAV1 and GPS Autopilot ON/OFF (NAV1 mode press OBS1, GPS mode press GPS)
+* ALT and SPD can be switched between radar/indicated and indicated/ground
 
 Material List:
 
