@@ -6,11 +6,11 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 
 ***UPDATE 1.87 (BitsAndDroids v0.8.7)***
 * NEW TRIM percentages for elevator, aileron and rudder, main button switches elevator and aileron
-* NEW Elevator trim can be set to coarse or fine setting, default is fine (turn slowly on coarse), press left button to switch
-* NEW Negative VS greater than 1000 display a thousands seperator, e.g. desceding at 1200 feet would read as "-1.20"
+* NEW Elevator trim has coarse/fine setting (turn slowly on coarse); left button to switch (. means coarse)
 * NEW Autopilot Master ON is displayed with an "A" on HDG page (no function to switch OFF/ON, display only)
+* NEW VS -1000 and above display a thousands seperator, e.g. VS at -1200 feet would read as "-1.20"
 * NEW All autopilot modes display a dot after the last digit, e.g. HDG "350." means HDG autopilot is active
-* CHANGED Menu: TRIM - ALT/SPD - Autopilot (HDG, GPS, ALT, VS, OBS) - Radio (COM, NAV, ADF, XPNDR)
+* CHANGED Menu order: TRIM - ALT/SPD - Autopilot (HDG, GPS, ALT, VS, OBS) - Radio (COM, NAV, ADF, XPNDR)
 * CHANGED Moved baro setting to ALT - SPD page, press left button to show QNH
 * CHANGED Moved GPS course to HDG page
 * FIXED Renamed ALTs and SPDs to proper abbreviations
