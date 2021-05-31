@@ -1,6 +1,6 @@
 # miniAVX 1.87
 
-MSFS Mini Avionics panel with Arduino
+MSFS Mini Avionics Panel with Arduino
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
