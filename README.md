@@ -1,8 +1,16 @@
-# miniAVX 1.06
+# miniAVX 1.87
 
 MSFS Radio and AP panel with Arduino
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 1.87 (BitsAndDroids v0.8.7)***
+* NEW: TRIM percentages for Elevator, Aileron and Rudder
+* NEW: Elevator trim can be set to coarse or fine setting, default is fine (turn slowly on coarse), press left button to switch
+* Resorted menu: TRIM - ALT/SPD - Autopilot (HDG, GPS, ALT, VS, OBS) - Radio (COM, NAV, ADF, XPNDR)
+* Moved baro setting to ALT - SPD page, press left button to show QNH
+* Moved GPS course to HDG page
+* Renamed ALTs and SPDs to proper abbreviations
 
 ***UPDATE 1.06 (BitsAndDroids v0.8.4)***
 * OBS 1 & 2 display now working
