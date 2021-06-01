@@ -10,7 +10,7 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 * NEW Version number now shows BAD version as well
 * CHANGED Altitude can now be switched between MSL and AGL with main button independently
 * CHANGED Speed can now be switched between IAS and GS with left button independently
-* CHANGED QNH can now be switches ON/OFF with right button on ALT page
+* CHANGED QNH can now be switched ON/OFF with right button on SPD-ALT page
 * CHANGED Redesign of UI for better readability
 
 ***UPDATE 1.87 (BitsAndDroids v0.8.7)***
