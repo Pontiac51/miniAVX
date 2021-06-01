@@ -243,6 +243,7 @@ void setup() {
   delay(1000);
   lc.clearDisplay(0);
   scrollLED();
+  pressAll3Buttons(); // Fix for bug of all 3 buttons pressed on init.
   updateOLED();
 
   //Open USB port
@@ -740,9 +741,9 @@ void displayOLEDtitle(){
   //myOLED.drawRoundRect(0,0,127,10);
   myOLED.drawLine(0,10,127,10);
   myOLED.setFont(SmallFont);
-  myOLED.print("miniAVX", LEFT, 2);
+  myOLED.print("miniAVX", LEFT, 1);
   //myOLED.setFont(TinyFont);
-  myOLED.print(version, RIGHT, 2);
+  myOLED.print(version, RIGHT, 1);
   myOLED.setFont(BigFont);
 }
 
@@ -1047,4 +1048,12 @@ void redrawLED() {
 
 void scrollLED(){
   if (selItem >= 0 && selItem < mainMenuLength && itemsMain[selItem].onSelect != NULL) itemsMain[selItem].onSelect();
+}
+
+void pressAll3Buttons(){
+  if (selItem >= 0 && selItem < mainMenuLength && itemsMain[selItem].onSelect != NULL){
+    if(onMainSelect != NULL) onMainSelect();
+    if(onLeftSelect != NULL) onLeftSelect();
+    if(onRightSelect != NULL) onRightSelect();
+  }
 }
