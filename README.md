@@ -1,8 +1,17 @@
-# miniAVX 1.87
+# miniAVX 1.90.087
 
 MSFS Mini Avionics Panel with Arduino
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 1.90.087 (BitsAndDroids v0.8.7)***
+* NEW BIG font for menu items (BigFont.c; ADD to OLED_I2C library)
+* NEW Selected item now shown inverted, Cursor ">" removed
+* NEW Version number now shows BAD version as well
+* CHANGED Altitude can now be switched between MSL and AGL with main button independently
+* CHANGED Speed can now be switched between IAS and GS with left button independently
+* CHANGED QNH can now be switches ON/OFF with right button on ALT page
+* CHANGED Redesign of UI for better readability
 
 ***UPDATE 1.87 (BitsAndDroids v0.8.7)***
 * NEW TRIM percentages for elevator, aileron and rudder, main button switches elevator and aileron
@@ -35,5 +44,6 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 
 ***Libraries used:***
 * BitsAndDroids Connector - https://www.bitsanddroids.com/
-* OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
 * LedControl - https://www.arduinolibraries.info/libraries/led-control
+* OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
+* BigFont.c - Converted from RinkyDinkyElectronics, needs to go into OLED_I2C library folder
