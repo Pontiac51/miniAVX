@@ -1,8 +1,14 @@
-# miniAVX 1.90.087
+# miniAVX 1.90.088 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 1.90.088 (BitsAndDroids v0.8.8)***
+CHANGED COM, NAV split to seperate draw functions on the digit display (different frequency formats)
+CHANGED Redraw interval from 100ms to 50ms
+FIXED Renamed "VS" to "V/S"
+FIXED ADF, XPDNR 
 
 ***UPDATE 1.90.087 (BitsAndDroids v0.8.7)***
 * NEW BIG font for menu items (BigFont.c; ADD to OLED_I2C library)
