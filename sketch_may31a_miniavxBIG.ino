@@ -2,8 +2,8 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "1.90.087";
-String BADversion = "0.8.7";
+String version = "1.91.088";
+String BADversion = "0.8.8";
 
 // data type for button
 struct Button {
@@ -28,7 +28,7 @@ BitsAndDroidsFlightConnector connectorTX(false, &Serial);
 BitsAndDroidsFlightConnector connectorRX(false, &SerialUSB);
 
 // define 7-segment display
-#define REDRAW_INTERVAL 100
+#define REDRAW_INTERVAL 50
 long lastRedraw = 0;
 LedControl lc=LedControl(12,11,10,1);
 
@@ -211,7 +211,7 @@ void setup() {
   addMenuItem("ELE  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
   addMenuItem("HDG  GPS", &onHdgGPSSelect);
-  addMenuItem("ALT  VS", &onAltVsSelect);
+  addMenuItem("ALT  V/S", &onAltVsSelect);
   addMenuItem("OBS1-2", &onOBSSelect);
   addMenuItem("COM1", &onComSelect);
   addMenuItem("NAV1", &onNavSelect);
@@ -730,10 +730,6 @@ void displayOLEDMain(){
   invSelected(x, 0, iArr);
   invSelected(y, 1, iArr);
   invSelected(z, 2, iArr);        
-  //myOLED.print(itemsMain[x-1].entry, 0, yArr[0]);
-  //myOLED.print(itemsMain[y-1].entry, 0, yArr[1]);
-  //myOLED.print(itemsMain[z-1].entry, 0, yArr[2]);
-  //myOLED.print(">", 0, yArr[iArr]); 
   myOLED.update();
 }
 
@@ -889,21 +885,32 @@ void drawLEDHdgGPS(){
 
 void drawLEDCom(){
   if (!itemsMain[selItem].option){ // 1
-    displayLEDfreq(connectorRX.getStandbyCom1());
+    displayLEDfreqCOM(connectorRX.getStandbyCom1());
   } else { // 2
-    displayLEDfreq(connectorRX.getStandbyCom2());
+    displayLEDfreqCOM(connectorRX.getStandbyCom2());
   }
 }
 
 void drawLEDNav(){
     if (!itemsMain[selItem].option){ // 1
-      displayLEDfreq(connectorRX.getStandbyNav1());
+      displayLEDfreqNAV(connectorRX.getStandbyNav1());
     } else { // 2
-      displayLEDfreq(connectorRX.getStandbyNav2());
+      displayLEDfreqNAV(connectorRX.getStandbyNav2());
     }
 }
 
-void displayLEDfreq(long freq){
+void displayLEDfreqCOM(long freq){
+  lc.setChar(0,7,' ',false);
+  lc.setChar(0,6,(freq/100000)%10,false);
+  lc.setChar(0,5,(freq/10000)%10,false);
+  lc.setChar(0,4,(freq/1000)%10,true);
+  lc.setChar(0,3,(freq/100)%10,false);
+  lc.setChar(0,2,(freq/10)%10,false);
+  lc.setChar(0,1,freq%10,false);
+  lc.setChar(0,0,' ',false);
+}
+
+void displayLEDfreqNAV(long freq){
   lc.setChar(0,7,' ',false);
   lc.setChar(0,6,(freq/100000)%10,false);
   lc.setChar(0,5,(freq/10000)%10,false);
@@ -928,29 +935,52 @@ void drawLEDObs(){
 }
 
 void drawLEDAdfXpndr(){
-  String adf = "";
-  String xpndr = "";
+  long adf = 0;
+  long xpndr = 0;
   if (!itemsMain[selItem].option){ // 1
-    adf = connectorRX.getAdfStandbyFreq1();
-    xpndr = connectorRX.getTransponderCode1();
+    adf = connectorRX.getAdfStandbyFreq1().toInt();
+    xpndr = connectorRX.getTransponderCode1().toInt();
   } else { // 2
-    adf = connectorRX.getAdfStandbyFreq2();
-    xpndr = connectorRX.getTransponderCode2();
+    adf = connectorRX.getAdfStandbyFreq2().toInt();
+    xpndr = connectorRX.getTransponderCode2().toInt();
   }
-  while (xpndr.length() < 4){
-    xpndr = "0" + xpndr;  
+  lc.setChar(0,7,(adf/1000)%10,false);
+  lc.setChar(0,6,(adf/100)%10,false);
+  lc.setChar(0,5,(adf/10)%10,false);
+  lc.setChar(0,4,adf%10,false);
+  switch (adfDigit){
+    case 0:
+    lc.setChar(0,4,adf%10,true); 
+    break;
+    case 1:
+    lc.setChar(0,5,(adf/10)%10,true);
+    break;
+    case 2:
+    lc.setChar(0,6,(adf/100)%10,true);
+    break;
+    default:
+    break;
   }
-  if (adf.length() == 3){
-    adf = " " + adf;
+  lc.setChar(0,3,(xpndr/1000)%10,false);
+  lc.setChar(0,2,(xpndr/100)%10,false);
+  lc.setChar(0,1,(xpndr/10)%10,false);
+  lc.setChar(0,0,xpndr%10,false); 
+  switch (xpndrDigit){
+    case 0:
+    lc.setChar(0,0,xpndr%10,true); 
+    break;
+    case 1:
+    lc.setChar(0,1,(xpndr/10)%10,true);
+    break;
+    case 2:
+    lc.setChar(0,2,(xpndr/100)%10,true);
+    break;
+    case 3:
+    lc.setChar(0,3,(xpndr/1000)%10,true);
+    break;
+    default:
+    break;
   }
-  lc.setChar(0,7,adf.charAt(0),false);
-  lc.setChar(0,6,adf.charAt(1),false);
-  lc.setChar(0,5,adf.charAt(2),false);
-  lc.setChar(0,4,adf.charAt(3),false);
-  lc.setChar(0,3,xpndr.charAt(0),false);
-  lc.setChar(0,2,xpndr.charAt(1),false);
-  lc.setChar(0,1,xpndr.charAt(2),false);
-  lc.setChar(0,0,xpndr.charAt(3),false); 
 }
 
 void drawLEDBrightInv(){
