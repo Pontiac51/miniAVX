@@ -1,6 +1,6 @@
 # miniAVX 1.90.087
 
-MSFS Mini Avionics Panel with Arduino
+Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
