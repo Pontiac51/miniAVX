@@ -791,16 +791,16 @@ void displayAPModes(){
   String ApGPSOn = "|";
   String ApALTOn = "|";
   String ApVSOn = "|";
-  if(!connectorRX.getAPHeadingLockOn){
+  if(!connectorRX.getAPHeadingLockOn()){
     ApHDGOn = " "; 
   }
   if(!getAPGpsLockOn){
     ApGPSOn = " "; 
   }
-  if(!connectorRX.getAPAltitudeLockOn){
+  if(!connectorRX.getAPAltitudeLockOn()){
     ApALTOn = " "; 
   }
-  if(!connectorRX.getAPVerticalHoldOn){
+  if(!connectorRX.getAPVerticalHoldOn()){
     ApVSOn = " "; 
   }
   itemsMain[2].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
