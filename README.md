@@ -3,13 +3,14 @@
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 Current functions include:
-* Trim for Elevator, Rudder & Aileron with fine/coarse modes; Display in percent
-* ALT (MSL, AGL), SPD (IAS, GS) and QNH display with adjustment knob
-* Adjustable HDG, OBS1 & 2
-* Adjustable Autopilot Values: HDG, ALT and V/S
-* Switchable Autopilot Modes: Master, HDG, GPS, ALT and V/S
-* Display of Autopilot Vaules: GPS course
+* Trim Elevator, Rudder & Aileron with fine/coarse modes and display in %
+* Display ALT (MSL, AGL), SPD (IAS, GS) and QNH with adjustment knob
+* Set and display HDG, OBS1 & 2
+* Set and display autopilot values: ALT and V/S
+* Set and display autopilot modes: Master, HDG, GPS, ALT and V/S
+* Display autopilot value: GPS course
 * Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2
+* Adjust brightness and invert display
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
