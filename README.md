@@ -1,8 +1,16 @@
-# miniAVX 1.91.088 #
+# miniAVX 1.92.090 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 1.92.090 (BitsAndDroids v0.9.0)***
+* NEW On "HDG GPS" page main button turn ON/OFF AP Master
+* NEW Active AP modes are now shown on "HDG GPS" and "ALT V/S" pages
+* NEW Rudder and aileron trim now feature coarse mode
+* CHANGED Main button clockwise turn is now down in main menu, counter-clockwise is up
+* CHANGED "NAV" and "COM" pages now display "STBY"
+* CHANGED "ELE" to "ELV" on trim page
 
 ***UPDATE 1.91.088 (BitsAndDroids v0.8.8)***
 * CHANGED COM, NAV split to seperate draw functions on the digit display (different frequency formats)
