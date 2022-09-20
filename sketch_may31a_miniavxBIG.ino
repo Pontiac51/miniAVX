@@ -2,8 +2,8 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "1.91.088";
-String BADversion = "0.8.8";
+String version = "1.92.090";
+String BADversion = "0.9.0";
 
 // data type for button
 struct Button {
@@ -67,8 +67,10 @@ int xpndrDigit = 3;
 // Init GPS state - BAD does not support this value at the moment
 boolean getAPGpsLockOn = false;
 
-//Init Elevator Trim Step
-boolean isElevTrimBIG = false;
+//Init Trim Step
+boolean isElvTrimBIG = false;
+boolean isRudTrimBIG = false;
+boolean isAilTrimBIG = false;
 
 //Init ALT page
 boolean showBaro = false;
@@ -110,7 +112,7 @@ void onAltSpeedSelect() {
 
 void onHdgGPSSelect() {
     drawLED = &drawLEDHdgGPS;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPHdgToggle;
     onLeftCW = &onHdgIncrease;
     onLeftCCW = &onHdgDecrease;
@@ -177,12 +179,12 @@ void onOBSSelect() {
 void onTrimSelect() {
     drawLED = &drawLEDTrim;
     onMainSelect = &onTrimSwitch;    
-    onLeftSelect = &onElevTrimBIG;
-    onLeftCW = &onElevTrimUp;
-    onLeftCCW = &onElevTrimDn;
-    onRightSelect = NULL;
-    onRightCW = &onRuddTrimR;
-    onRightCCW = &onRuddTrimL;
+    onLeftSelect = &onElvTrimBIG;
+    onLeftCW = &onElvTrimUp;
+    onLeftCCW = &onElvTrimDn;
+    onRightSelect = &onRudTrimBIG;
+    onRightCW = &onRudTrimR;
+    onRightCCW = &onRudTrimL;
 }
 
 void onBrightInvSelect() {
@@ -208,13 +210,13 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
 
 void setup() {
   //menu
-  addMenuItem("ELE  RUD", &onTrimSelect);
+  addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
   addMenuItem("HDG  GPS", &onHdgGPSSelect);
   addMenuItem("ALT  V/S", &onAltVsSelect);
   addMenuItem("OBS1-2", &onOBSSelect);
-  addMenuItem("COM1", &onComSelect);
-  addMenuItem("NAV1", &onNavSelect);
+  addMenuItem("COM1STBY", &onComSelect);
+  addMenuItem("NAV1STBY", &onNavSelect);
   addMenuItem("ADF1 XP1", &onAdfXpndrSelect);  
   addMenuItem("BRT  INV", &onBrightInvSelect);
  
@@ -337,10 +339,10 @@ void onSelectBaro(){
 
 void onComSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "COM2";
+    itemsMain[selItem].entry = "COM2STBY";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "COM1";
+    itemsMain[selItem].entry = "COM1STBY";
     itemsMain[selItem].option = false;
   }
   updateOLED();
@@ -348,10 +350,10 @@ void onComSelect12(){
 
 void onNavSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "NAV2";
+    itemsMain[selItem].entry = "NAV2STBY";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "NAV1";
+    itemsMain[selItem].entry = "NAV1STBY";
     itemsMain[selItem].option = false;
   }
   updateOLED();
@@ -372,17 +374,21 @@ void onAdfXpndrSelect12(){
 
 void onTrimSwitch(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "ELE  AIL";
+    itemsMain[selItem].entry = "ELV  AIL";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "ELE  RUD";
+    itemsMain[selItem].entry = "ELV  RUD";
     itemsMain[selItem].option = false;
   }
   updateOLED();  
 }
 
+void onAPMasterToggle(){
+  Serial.println(connectorTX.sendApMasterOn());
+}
+
 void onAPHdgToggle(){
-    Serial.println(connectorTX.sendAPHeadingHold());
+  Serial.println(connectorTX.sendAPHeadingHold());
 }
 
 void onHdgIncrease(){
@@ -675,8 +681,8 @@ void onInvSwitch(){
   myOLED.invert(inverted);  
 }
 
-void onElevTrimUp(){
-  if(!isElevTrimBIG){
+void onElvTrimUp(){
+  if(!isElvTrimBIG){
     Serial.println(connectorTX.sendElevTrimUp());
   } else {
     for (int i = 0; i < 20; i++){
@@ -686,8 +692,8 @@ void onElevTrimUp(){
   }
 }
 
-void onElevTrimDn(){
-  if(!isElevTrimBIG){
+void onElvTrimDn(){
+  if(!isElvTrimBIG){
     Serial.println(connectorTX.sendElevTrimDn());
   } else {
     for (int i = 0; i < 20; i++){
@@ -697,24 +703,60 @@ void onElevTrimDn(){
   }
 }
 
-void onRuddTrimL(){
+void onRudTrimL(){
   if (!itemsMain[selItem].option){
-    Serial.println(connectorTX.sendRudderTrimLeft());
+    if(!isRudTrimBIG){
+      Serial.println(connectorTX.sendRudderTrimLeft());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendRudderTrimLeft());
+        delay(10);
+      }
+    }
   } else {
-    Serial.println(connectorTX.sendAileronTrimLeft());
+    if(!isAilTrimBIG){
+      Serial.println(connectorTX.sendAileronTrimLeft());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendAileronTrimLeft());
+        delay(10);
+      }
+    }
   }
 }
 
-void onRuddTrimR(){
+void onRudTrimR(){
   if (!itemsMain[selItem].option){
-    Serial.println(connectorTX.sendRudderTrimRight());
+    if(!isRudTrimBIG){
+      Serial.println(connectorTX.sendRudderTrimRight());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendRudderTrimRight());
+        delay(10);
+      }
+    }
   } else {
-    Serial.println(connectorTX.sendAileronTrimRight());
+    if(!isAilTrimBIG){
+      Serial.println(connectorTX.sendAileronTrimRight());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendAileronTrimRight());
+        delay(10);
+      }
+    }
   }
 }
 
-void onElevTrimBIG(){
-  isElevTrimBIG = !isElevTrimBIG;
+void onElvTrimBIG(){
+  isElvTrimBIG = !isElvTrimBIG;
+}
+
+void onRudTrimBIG(){
+  if (!itemsMain[selItem].option){
+    isRudTrimBIG = !isRudTrimBIG;
+  } else {
+    isAilTrimBIG = !isAilTrimBIG;
+  }
 }
 
 void updateOLED(){
@@ -727,6 +769,7 @@ void displayOLEDMain(){
   int z = firstItem+3 % mainMenuLength;
   myOLED.clrScr();
   displayOLEDtitle();
+  displayAPModes();
   invSelected(x, 0, iArr);
   invSelected(y, 1, iArr);
   invSelected(z, 2, iArr);        
@@ -741,6 +784,27 @@ void displayOLEDtitle(){
   //myOLED.setFont(TinyFont);
   myOLED.print(version, RIGHT, 1);
   myOLED.setFont(BigFont);
+}
+
+void displayAPModes(){
+  String ApHDGOn = "|";
+  String ApGPSOn = "|";
+  String ApALTOn = "|";
+  String ApVSOn = "|";
+  if(!connectorRX.getAPHeadingLockOn){
+    ApHDGOn = " "; 
+  }
+  if(!getAPGpsLockOn){
+    ApGPSOn = " "; 
+  }
+  if(!connectorRX.getAPAltitudeLockOn){
+    ApALTOn = " "; 
+  }
+  if(!connectorRX.getAPVerticalHoldOn){
+    ApVSOn = " "; 
+  }
+  itemsMain[2].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
+  itemsMain[3].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
 }
 
 void invSelected(int iItem, int itemArr, int cursorArr){
@@ -778,7 +842,7 @@ void loopRotaries() {
             // turned clockwise
             switch(i){
               case 0: //MAIN
-              mainUp();
+              mainDown();
               break;
               case 1: //LEFT
               if(onLeftCW != NULL) onLeftCW();
@@ -793,7 +857,7 @@ void loopRotaries() {
             // turned counter-clockwise
             switch(i){
               case 0: //MAIN
-              mainDown();
+              mainUp();
               break;
               case 1: //LEFT
               if(onLeftCCW != NULL) onLeftCCW();
@@ -1048,18 +1112,26 @@ void drawLEDTrim(){
     r = connectorRX.getAileronTrimPct();
   }
   if (e < 0){
-    lc.setChar(0,7,'-', isElevTrimBIG);
+    lc.setChar(0,7,'-', isElvTrimBIG);
   } else {
-    lc.setChar(0,7,' ', isElevTrimBIG);
+    lc.setChar(0,7,' ', isElvTrimBIG);
   }
   e = abs(e);
   lc.setChar(0,6,(e/100)%10, false);
   lc.setChar(0,5,(e/10)%10, false);
   lc.setChar(0,4,e%10, false);
   if (r < 0){
-    lc.setChar(0,3,'-', false);
+    if (!itemsMain[selItem].option){
+      lc.setChar(0,3,'-', isRudTrimBIG);
+    } else {
+      lc.setChar(0,3,'-', isAilTrimBIG);
+    }
   } else {
-    lc.setChar(0,3,' ', false);
+    if (!itemsMain[selItem].option){
+      lc.setChar(0,3,' ', isRudTrimBIG);
+    } else {
+      lc.setChar(0,3,' ', isAilTrimBIG);
+    }
   }
   r = abs(r);  
   lc.setChar(0,2,(r/100)%10, false);
