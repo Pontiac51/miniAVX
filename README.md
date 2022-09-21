@@ -7,7 +7,7 @@ Current functions include:
 * Display ALT (MSL, AGL), SPD (IAS, GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
 * Set and display autopilot values: ALT and V/S
-* Set and display autopilot modes: Master, HDG, GPS, ALT and V/S
+* Set and display autopilot modes: Master, HDG, NAV, GPS, ALT and V/S
 * Display autopilot value: GPS course
 * Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2
 * Adjust brightness and invert display
@@ -16,11 +16,13 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 
 ***UPDATE 1.92.090 (BitsAndDroids v0.9.0)***
 * NEW On "HDG GPS" page main button turns ON/OFF AP Master
-* NEW Active AP modes are now shown on "HDG GPS" and "ALT V/S" pages with a vertical stripe ("|")
+* NEW Active AP modes are now shown on "HDG GPS", "ALT V/S" and "OBS" pages with a vertical stripe ("|")
 * NEW Rudder and aileron trim now feature coarse mode
 * CHANGED Main button clockwise turn is now down in main menu, counter-clockwise is up
 * CHANGED "NAV" and "COM" pages now display "STBY"
 * CHANGED "ELE" to "ELV" on trim page
+* CHANGED "OBS1-2" to "OBS  1-2" to allow to disply active AP NAV mode
+* CHANGED order of menu items to fit with "Aviate-Navigate-Communicate"
 
 ***UPDATE 1.91.088 (BitsAndDroids v0.8.8)***
 * CHANGED COM, NAV split to seperate draw functions on the digit display (different frequency formats)
