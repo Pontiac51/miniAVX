@@ -15,7 +15,7 @@ Current functions include:
 Arduino code to be used with BitsAndDroids Connector and Library.
 
 ***UPDATE 1.92.090 (BitsAndDroids v0.9.0)***
-* NEW On "HDG GPS" page main button turns ON/OFF AP Master
+* NEW AP Master ON/OFF on main switch in pages "HDG GPS", "ALT V/S" and "OBS"
 * NEW Active AP modes are now shown on "HDG GPS", "ALT V/S" and "OBS" pages with a vertical stripe ("|")
 * NEW Rudder and aileron trim now feature coarse mode
 * CHANGED Main button clockwise turn is now down in main menu, counter-clockwise is up
