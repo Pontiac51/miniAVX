@@ -133,7 +133,7 @@ void onHdgGPSSelect() {
 
 void onAltVsSelect() {
     drawLED = &drawLEDAltVs;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPAltToggle;
     onLeftCW = &onAltIncrease;
     onLeftCCW = &onAltDecrease;
@@ -177,7 +177,7 @@ void onAdfXpndrSelect() {
 
 void onOBSSelect() {
     drawLED = &drawLEDObs;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPNAVToggle;
     onLeftCW = &onOBS1Increase;
     onLeftCCW = &onOBS1Decrease;
