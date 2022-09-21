@@ -55,6 +55,9 @@ uint8_t mainMenuLength = 0;
 int menu = 0;
 int firstItem = 0;
 int selItem = 0;
+int idxApHdgGps = 3; // set where AP HDG-GPS page is in list
+int idxApAltVs = 2; // set where AP ALT-VS page is in list
+int idxApObs = 4; // set where AP OBS page is in list
 
 // Init Cursor
 int yArr[] = {14, 31, 48};
@@ -64,8 +67,8 @@ int iArr = 0;
 int adfDigit = 2;
 int xpndrDigit = 3;
 
-// Init GPS state - BAD does not support this value at the moment
-boolean getAPGpsLockOn = false;
+// Init GPS state - not supported by BAD - default is ON
+boolean getAPGpsLockOn = true;
 
 //Init Trim Step
 boolean isElvTrimBIG = false;
@@ -79,6 +82,13 @@ String pageALT = "MSL";
 //Init SPD page
 boolean showGS = false;
 String pageSPD = "IAS";
+
+// Init AP Modes
+String ApHDGOn = " ";
+String ApGPSOn = " ";
+String ApALTOn = " ";
+String ApVSOn = " ";
+String ApOBSOn = " ";
 
 // constructor for menu item
 void addMenuItem(String entry, void (*onSelect)()) {
@@ -209,15 +219,16 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
 }
 
 void setup() {
-  //menu
+  // menu - first item is 0
+  // menu create by aviate - navigate - communicate
   addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
-  addMenuItem("HDG  GPS", &onHdgGPSSelect);
-  addMenuItem("ALT  V/S", &onAltVsSelect);
-  addMenuItem("OBS1-2", &onOBSSelect);
-  addMenuItem("COM1STBY", &onComSelect);
+  addMenuItem("ALT" + ApALTOn + ApVSOn + "V/S", &onAltVsSelect);
+  addMenuItem("HDG" + ApHDGOn + ApGPSOn + "GPS", &onHdgGPSSelect);  
+  addMenuItem("OBS" + ApOBSOn + " 1-2", &onOBSSelect);
   addMenuItem("NAV1STBY", &onNavSelect);
-  addMenuItem("ADF1 XP1", &onAdfXpndrSelect);  
+  addMenuItem("ADF1 XP1", &onAdfXpndrSelect);
+  addMenuItem("COM1STBY", &onComSelect);  
   addMenuItem("BRT  INV", &onBrightInvSelect);
  
   // rotaries
@@ -389,6 +400,13 @@ void onAPMasterToggle(){
 
 void onAPHdgToggle(){
   Serial.println(connectorTX.sendAPHeadingHold());
+  if(!connectorRX.getAPHeadingLockOn()){
+    ApHDGOn = " "; 
+  } else {
+    ApHDGOn = "|";
+  }
+  itemsMain[selItem].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
+  updateOLED();
 }
 
 void onHdgIncrease(){
@@ -408,7 +426,14 @@ void onBaroDecrease(){
 }
 
 void onAPAltToggle(){
-    Serial.println(connectorTX.sendAPAltitudeHold());
+  Serial.println(connectorTX.sendAPAltitudeHold());
+  if(!connectorRX.getAPAltitudeLockOn()){
+    ApALTOn = " "; 
+  } else {
+    ApALTOn = "|";
+  }
+  itemsMain[selItem].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
+  updateOLED();
 }
 
 void onAltIncrease(){
@@ -421,6 +446,13 @@ void onAltDecrease(){
 
 void onAPVSToggle(){
   Serial.println(connectorTX.sendAPVSHold());
+  if(!connectorRX.getAPVerticalHoldOn()){
+    ApVSOn = " "; 
+  } else {
+    ApVSOn = "|";
+  }
+  itemsMain[selItem].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
+  updateOLED();
 }
 
 void onVsIncrease(){
@@ -650,10 +682,24 @@ void onOBS2Decrease(){
 void onAPGPSToggle(){
   Serial.println(connectorTX.sendToggleGPSDrivesNav1());
   getAPGpsLockOn = !getAPGpsLockOn;
+  if(!connectorRX.getAPGpsLockOn()){
+    ApGPSOn = " "; 
+  } else {
+    ApGPSOn = "|";
+  }
+  itemsMain[selItem].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
+  updateOLED();
 }
 
 void onAPNAVToggle(){
   Serial.println(connectorTX.sendAPNav1Hold());
+  if(!connectorRX.getAPNav1LockOn()){
+    ApOBSOn = " "; 
+  } else {
+    ApOBSOn = "|";
+  }
+  itemsMain[selItem].entry = "OBS" + ApOBSOn + " 1-2";
+  updateOLED();
 }
 
 void onBrightIncrease(){
@@ -769,7 +815,6 @@ void displayOLEDMain(){
   int z = firstItem+3 % mainMenuLength;
   myOLED.clrScr();
   displayOLEDtitle();
-  displayAPModes();
   invSelected(x, 0, iArr);
   invSelected(y, 1, iArr);
   invSelected(z, 2, iArr);        
@@ -784,27 +829,6 @@ void displayOLEDtitle(){
   //myOLED.setFont(TinyFont);
   myOLED.print(version, RIGHT, 1);
   myOLED.setFont(BigFont);
-}
-
-void displayAPModes(){
-  String ApHDGOn = "|";
-  String ApGPSOn = "|";
-  String ApALTOn = "|";
-  String ApVSOn = "|";
-  if(!connectorRX.getAPHeadingLockOn()){
-    ApHDGOn = " "; 
-  }
-  if(!getAPGpsLockOn){
-    ApGPSOn = " "; 
-  }
-  if(!connectorRX.getAPAltitudeLockOn()){
-    ApALTOn = " "; 
-  }
-  if(!connectorRX.getAPVerticalHoldOn()){
-    ApVSOn = " "; 
-  }
-  itemsMain[2].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
-  itemsMain[3].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
 }
 
 void invSelected(int iItem, int itemArr, int cursorArr){
@@ -1120,6 +1144,7 @@ void drawLEDTrim(){
   lc.setChar(0,6,(e/100)%10, false);
   lc.setChar(0,5,(e/10)%10, false);
   lc.setChar(0,4,e%10, false);
+
   if (r < 0){
     if (!itemsMain[selItem].option){
       lc.setChar(0,3,'-', isRudTrimBIG);
@@ -1133,6 +1158,7 @@ void drawLEDTrim(){
       lc.setChar(0,3,' ', isAilTrimBIG);
     }
   }
+
   r = abs(r);  
   lc.setChar(0,2,(r/100)%10, false);
   lc.setChar(0,1,(r/10)%10, false);
