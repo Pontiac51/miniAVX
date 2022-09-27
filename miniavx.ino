@@ -55,6 +55,7 @@ uint8_t mainMenuLength = 0;
 int menu = 0;
 int firstItem = 0;
 int selItem = 0;
+
 int idxApHdgGps = 3; // set where AP HDG-GPS page is in list
 int idxApAltVs = 2; // set where AP ALT-VS page is in list
 int idxApObs = 4; // set where AP OBS page is in list
