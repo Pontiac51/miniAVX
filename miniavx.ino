@@ -2,8 +2,8 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "1.91.088";
-String BADversion = "0.8.8";
+String version = "1.92.090";
+String BADversion = "0.9.0";
 
 // data type for button
 struct Button {
@@ -56,6 +56,10 @@ int menu = 0;
 int firstItem = 0;
 int selItem = 0;
 
+int idxApHdgGps = 3; // set where AP HDG-GPS page is in list
+int idxApAltVs = 2; // set where AP ALT-VS page is in list
+int idxApObs = 4; // set where AP OBS page is in list
+
 // Init Cursor
 int yArr[] = {14, 31, 48};
 int iArr = 0;
@@ -64,11 +68,13 @@ int iArr = 0;
 int adfDigit = 2;
 int xpndrDigit = 3;
 
-// Init GPS state - BAD does not support this value at the moment
-boolean getAPGpsLockOn = false;
+// Init GPS state - not supported by BAD - default is ON
+boolean getAPGpsLockOn = true;
 
-//Init Elevator Trim Step
-boolean isElevTrimBIG = false;
+//Init Trim Step
+boolean isElvTrimBIG = false;
+boolean isRudTrimBIG = false;
+boolean isAilTrimBIG = false;
 
 //Init ALT page
 boolean showBaro = false;
@@ -77,6 +83,13 @@ String pageALT = "MSL";
 //Init SPD page
 boolean showGS = false;
 String pageSPD = "IAS";
+
+// Init AP Modes
+String ApHDGOn = " ";
+String ApGPSOn = " ";
+String ApALTOn = " ";
+String ApVSOn = " ";
+String ApOBSOn = " ";
 
 // constructor for menu item
 void addMenuItem(String entry, void (*onSelect)()) {
@@ -110,7 +123,7 @@ void onAltSpeedSelect() {
 
 void onHdgGPSSelect() {
     drawLED = &drawLEDHdgGPS;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPHdgToggle;
     onLeftCW = &onHdgIncrease;
     onLeftCCW = &onHdgDecrease;
@@ -121,7 +134,7 @@ void onHdgGPSSelect() {
 
 void onAltVsSelect() {
     drawLED = &drawLEDAltVs;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPAltToggle;
     onLeftCW = &onAltIncrease;
     onLeftCCW = &onAltDecrease;
@@ -165,7 +178,7 @@ void onAdfXpndrSelect() {
 
 void onOBSSelect() {
     drawLED = &drawLEDObs;
-    onMainSelect = NULL;
+    onMainSelect = &onAPMasterToggle;
     onLeftSelect = &onAPNAVToggle;
     onLeftCW = &onOBS1Increase;
     onLeftCCW = &onOBS1Decrease;
@@ -177,12 +190,12 @@ void onOBSSelect() {
 void onTrimSelect() {
     drawLED = &drawLEDTrim;
     onMainSelect = &onTrimSwitch;    
-    onLeftSelect = &onElevTrimBIG;
-    onLeftCW = &onElevTrimUp;
-    onLeftCCW = &onElevTrimDn;
-    onRightSelect = NULL;
-    onRightCW = &onRuddTrimR;
-    onRightCCW = &onRuddTrimL;
+    onLeftSelect = &onElvTrimBIG;
+    onLeftCW = &onElvTrimUp;
+    onLeftCCW = &onElvTrimDn;
+    onRightSelect = &onRudTrimBIG;
+    onRightCW = &onRudTrimR;
+    onRightCCW = &onRudTrimL;
 }
 
 void onBrightInvSelect() {
@@ -207,15 +220,16 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
 }
 
 void setup() {
-  //menu
-  addMenuItem("ELE  RUD", &onTrimSelect);
+  // menu - first item is 0
+  // menu create by aviate - navigate - communicate
+  addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
-  addMenuItem("HDG  GPS", &onHdgGPSSelect);
-  addMenuItem("ALT  V/S", &onAltVsSelect);
-  addMenuItem("OBS1-2", &onOBSSelect);
-  addMenuItem("COM1", &onComSelect);
-  addMenuItem("NAV1", &onNavSelect);
-  addMenuItem("ADF1 XP1", &onAdfXpndrSelect);  
+  addMenuItem("ALT" + ApALTOn + ApVSOn + "V/S", &onAltVsSelect);
+  addMenuItem("HDG" + ApHDGOn + ApGPSOn + "GPS", &onHdgGPSSelect);  
+  addMenuItem("OBS" + ApOBSOn + " 1-2", &onOBSSelect);
+  addMenuItem("NAV1STBY", &onNavSelect);
+  addMenuItem("ADF1 XP1", &onAdfXpndrSelect);
+  addMenuItem("COM1STBY", &onComSelect);  
   addMenuItem("BRT  INV", &onBrightInvSelect);
  
   // rotaries
@@ -337,10 +351,10 @@ void onSelectBaro(){
 
 void onComSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "COM2";
+    itemsMain[selItem].entry = "COM2STBY";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "COM1";
+    itemsMain[selItem].entry = "COM1STBY";
     itemsMain[selItem].option = false;
   }
   updateOLED();
@@ -348,10 +362,10 @@ void onComSelect12(){
 
 void onNavSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "NAV2";
+    itemsMain[selItem].entry = "NAV2STBY";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "NAV1";
+    itemsMain[selItem].entry = "NAV1STBY";
     itemsMain[selItem].option = false;
   }
   updateOLED();
@@ -372,17 +386,28 @@ void onAdfXpndrSelect12(){
 
 void onTrimSwitch(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "ELE  AIL";
+    itemsMain[selItem].entry = "ELV  AIL";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "ELE  RUD";
+    itemsMain[selItem].entry = "ELV  RUD";
     itemsMain[selItem].option = false;
   }
   updateOLED();  
 }
 
+void onAPMasterToggle(){
+  Serial.println(connectorTX.sendApMasterOn());
+}
+
 void onAPHdgToggle(){
-    Serial.println(connectorTX.sendAPHeadingHold());
+  Serial.println(connectorTX.sendAPHeadingHold());
+  if(!connectorRX.getAPHeadingLockOn()){
+    ApHDGOn = " "; 
+  } else {
+    ApHDGOn = "|";
+  }
+  itemsMain[selItem].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
+  updateOLED();
 }
 
 void onHdgIncrease(){
@@ -402,7 +427,14 @@ void onBaroDecrease(){
 }
 
 void onAPAltToggle(){
-    Serial.println(connectorTX.sendAPAltitudeHold());
+  Serial.println(connectorTX.sendAPAltitudeHold());
+  if(!connectorRX.getAPAltitudeLockOn()){
+    ApALTOn = " "; 
+  } else {
+    ApALTOn = "|";
+  }
+  itemsMain[selItem].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
+  updateOLED();
 }
 
 void onAltIncrease(){
@@ -415,6 +447,13 @@ void onAltDecrease(){
 
 void onAPVSToggle(){
   Serial.println(connectorTX.sendAPVSHold());
+  if(!connectorRX.getAPVerticalHoldOn()){
+    ApVSOn = " "; 
+  } else {
+    ApVSOn = "|";
+  }
+  itemsMain[selItem].entry = "ALT" + ApALTOn + ApVSOn + "V/S";
+  updateOLED();
 }
 
 void onVsIncrease(){
@@ -644,10 +683,24 @@ void onOBS2Decrease(){
 void onAPGPSToggle(){
   Serial.println(connectorTX.sendToggleGPSDrivesNav1());
   getAPGpsLockOn = !getAPGpsLockOn;
+  if(!connectorRX.getAPGpsLockOn()){
+    ApGPSOn = " "; 
+  } else {
+    ApGPSOn = "|";
+  }
+  itemsMain[selItem].entry = "HDG" + ApHDGOn + ApGPSOn + "GPS";
+  updateOLED();
 }
 
 void onAPNAVToggle(){
   Serial.println(connectorTX.sendAPNav1Hold());
+  if(!connectorRX.getAPNav1LockOn()){
+    ApOBSOn = " "; 
+  } else {
+    ApOBSOn = "|";
+  }
+  itemsMain[selItem].entry = "OBS" + ApOBSOn + " 1-2";
+  updateOLED();
 }
 
 void onBrightIncrease(){
@@ -675,8 +728,8 @@ void onInvSwitch(){
   myOLED.invert(inverted);  
 }
 
-void onElevTrimUp(){
-  if(!isElevTrimBIG){
+void onElvTrimUp(){
+  if(!isElvTrimBIG){
     Serial.println(connectorTX.sendElevTrimUp());
   } else {
     for (int i = 0; i < 20; i++){
@@ -686,8 +739,8 @@ void onElevTrimUp(){
   }
 }
 
-void onElevTrimDn(){
-  if(!isElevTrimBIG){
+void onElvTrimDn(){
+  if(!isElvTrimBIG){
     Serial.println(connectorTX.sendElevTrimDn());
   } else {
     for (int i = 0; i < 20; i++){
@@ -697,24 +750,60 @@ void onElevTrimDn(){
   }
 }
 
-void onRuddTrimL(){
+void onRudTrimL(){
   if (!itemsMain[selItem].option){
-    Serial.println(connectorTX.sendRudderTrimLeft());
+    if(!isRudTrimBIG){
+      Serial.println(connectorTX.sendRudderTrimLeft());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendRudderTrimLeft());
+        delay(10);
+      }
+    }
   } else {
-    Serial.println(connectorTX.sendAileronTrimLeft());
+    if(!isAilTrimBIG){
+      Serial.println(connectorTX.sendAileronTrimLeft());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendAileronTrimLeft());
+        delay(10);
+      }
+    }
   }
 }
 
-void onRuddTrimR(){
+void onRudTrimR(){
   if (!itemsMain[selItem].option){
-    Serial.println(connectorTX.sendRudderTrimRight());
+    if(!isRudTrimBIG){
+      Serial.println(connectorTX.sendRudderTrimRight());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendRudderTrimRight());
+        delay(10);
+      }
+    }
   } else {
-    Serial.println(connectorTX.sendAileronTrimRight());
+    if(!isAilTrimBIG){
+      Serial.println(connectorTX.sendAileronTrimRight());
+    } else {
+      for (int i = 0; i < 20; i++){
+        Serial.println(connectorTX.sendAileronTrimRight());
+        delay(10);
+      }
+    }
   }
 }
 
-void onElevTrimBIG(){
-  isElevTrimBIG = !isElevTrimBIG;
+void onElvTrimBIG(){
+  isElvTrimBIG = !isElvTrimBIG;
+}
+
+void onRudTrimBIG(){
+  if (!itemsMain[selItem].option){
+    isRudTrimBIG = !isRudTrimBIG;
+  } else {
+    isAilTrimBIG = !isAilTrimBIG;
+  }
 }
 
 void updateOLED(){
@@ -778,7 +867,7 @@ void loopRotaries() {
             // turned clockwise
             switch(i){
               case 0: //MAIN
-              mainUp();
+              mainDown();
               break;
               case 1: //LEFT
               if(onLeftCW != NULL) onLeftCW();
@@ -793,7 +882,7 @@ void loopRotaries() {
             // turned counter-clockwise
             switch(i){
               case 0: //MAIN
-              mainDown();
+              mainUp();
               break;
               case 1: //LEFT
               if(onLeftCCW != NULL) onLeftCCW();
@@ -1048,19 +1137,29 @@ void drawLEDTrim(){
     r = connectorRX.getAileronTrimPct();
   }
   if (e < 0){
-    lc.setChar(0,7,'-', isElevTrimBIG);
+    lc.setChar(0,7,'-', isElvTrimBIG);
   } else {
-    lc.setChar(0,7,' ', isElevTrimBIG);
+    lc.setChar(0,7,' ', isElvTrimBIG);
   }
   e = abs(e);
   lc.setChar(0,6,(e/100)%10, false);
   lc.setChar(0,5,(e/10)%10, false);
   lc.setChar(0,4,e%10, false);
+
   if (r < 0){
-    lc.setChar(0,3,'-', false);
+    if (!itemsMain[selItem].option){
+      lc.setChar(0,3,'-', isRudTrimBIG);
+    } else {
+      lc.setChar(0,3,'-', isAilTrimBIG);
+    }
   } else {
-    lc.setChar(0,3,' ', false);
+    if (!itemsMain[selItem].option){
+      lc.setChar(0,3,' ', isRudTrimBIG);
+    } else {
+      lc.setChar(0,3,' ', isAilTrimBIG);
+    }
   }
+
   r = abs(r);  
   lc.setChar(0,2,(r/100)%10, false);
   lc.setChar(0,1,(r/10)%10, false);
