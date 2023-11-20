@@ -2,7 +2,7 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "1.92.090";
+String version = "1.93.090";
 String BADversion = "0.9.0";
 
 // data type for button
@@ -22,6 +22,10 @@ struct Rotary {
 
 #define ROTARIES 3
 Rotary rotaries[ROTARIES];
+
+// debouncing
+unsigned long lastSample = 0;
+int debounce = 5; // time in ms
 
 //BAD - true for pro-micro / Leonardo
 BitsAndDroidsFlightConnector connectorTX(false, &Serial);
@@ -272,7 +276,10 @@ void setup() {
 void loop() {
   connectorRX.dataHandling();
   redrawLED();
-  loopRotaries();
+  if (millis() - lastSample > debounce){ // debouncing before checking rotaries again
+    lastSample = millis();
+    loopRotaries();
+  }
 }
 
 void mainUp()  { //up function. selection sign ">" will move upwards.
@@ -683,7 +690,7 @@ void onOBS2Decrease(){
 void onAPGPSToggle(){
   Serial.println(connectorTX.sendToggleGPSDrivesNav1());
   getAPGpsLockOn = !getAPGpsLockOn;
-  if(!connectorRX.getAPGpsLockOn()){
+  if(!getAPGpsLockOn){
     ApGPSOn = " "; 
   } else {
     ApGPSOn = "|";
