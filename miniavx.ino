@@ -1,12 +1,11 @@
 #include <BitsAndDroidsFlightConnector.h>
 #include <LedControl.h>
 #include <OLED_I2C.h>
-#include <Encoder.h>
 
 String version = "1.94.090";
 String BADversion = "0.9.0";
 
-// data type for button
+//data type for button
 struct Button {
   uint8_t gpioSw;
   uint8_t lastStateSw;
@@ -14,16 +13,15 @@ struct Button {
 
 //data type for rotary
 struct Rotary {
-  long oldPosition;
+  int rotationCounter;
   uint8_t gpioClk;
   uint8_t gpioDt;
-  uint8_t lastStateClk;
-  uint8_t lastStateDt;
+  volatile bool rotMoved;
   Button button;
-  Encoder enc;
+  void rotary();
 };
 
-#define ROTARIES 3
+// #define ROTARIES 3
 Rotary rotaries[ROTARIES];
 
 // debouncing
@@ -216,15 +214,76 @@ void onBrightInvSelect() {
     onRightCCW = NULL;
 }
 
+// Interrupt routines just set a flag when rotation is detected
+void IRAM_ATTR Rotary::rotary()
+{
+    rotMoved = true;
+}
+
+// Rotary encoder has moved (interrupt tells us) but what happened?
+// See https://www.pinteric.com/rotary.html
+int8_t checkRotaryEncoder(Rotary *cur)
+{
+    // Reset the flag that brought us here (from ISR)
+    cur->rotaryEncoder = false;
+
+    static uint8_t lrmem = 3;
+    static int lrsum = 0;
+    static int8_t TRANS[] = {0, -1, 1, 14, 1, 0, 14, -1, -1, 14, 0, 1, 14, 1, -1, 0};
+
+    // Read BOTH pin states to deterimine validity of rotation (ie not just switch bounce)
+    int8_t l = digitalRead(cur->gpioClk);
+    int8_t r = digitalRead(cur->gpioDt);
+
+    // Move previous value 2 bits to the left and add in our new values
+    lrmem = ((lrmem & 0x03) << 2) + 2 * l + r;
+
+    // Convert the bit pattern to a movement indicator (14 = impossible, ie switch bounce)
+    lrsum += TRANS[lrmem];
+
+    /* encoder not in the neutral (detent) state */
+    if (lrsum % 4 != 0)
+    {
+        return 0;
+    }
+
+    /* encoder in the neutral state - clockwise rotation*/
+    if (lrsum == 4)
+    {
+        lrsum = 0;
+        return 1;
+    }
+
+    /* encoder in the neutral state - anti-clockwise rotation*/
+    if (lrsum == -4)
+    {
+        lrsum = 0;
+        return -1;
+    }
+
+    // An impossible rotation has been detected - ignore the movement
+    lrsum = 0;
+    return 0;
+}
+
 void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) {
-  pinMode(gpioSw, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(gpioSw), loopRotaries, RISING);
-  cur->enc = Encoder(gpioClk, gpioDt);
-  cur->oldPosition = -999;
+  cur->rotationCounter = 200;
   cur->gpioClk = gpioClk;
   cur->gpioDt = gpioDt;
-  cur->button.gpioSw = gpioSw;
+  cur->rotMoved = false;
+  cur->button.gpioSw = gpioSW;
   cur->button.lastStateSw = LOW;
+  
+  // The module already has pullup resistors on board
+  pinMode(cur->gpioClk, INPUT);
+  pinMode(cur->gpioDt, INPUT);
+
+  // But not for the push switch
+  pinMode(cur->button.gpioSw, INPUT_PULLUP);
+
+  // We need to monitor both pins, rising and falling for all states
+  attachInterrupt(digitalPinToInterrupt(cur->gpioClk), cur->rotary, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(cur->gpioDt), cur->rotary, CHANGE);  
 }
 
 void setup() {
@@ -280,10 +339,7 @@ void setup() {
 void loop() {
   connectorRX.dataHandling();
   redrawLED();
-  // if (millis() - lastSample > debounce){ // debouncing before checking rotaries again
-  //   lastSample = millis();
-  //   loopRotaries();
-  // }
+  loopRotaries();
 }
 
 void mainUp()  { //up function. selection sign ">" will move upwards.
@@ -860,7 +916,25 @@ void loopRotaries() {
   Rotary *cur;
 
   for (int i = 0; i < ROTARIES; i++) {
-    cur = &rotaries[i];    
+    cur = &rotaries[i];
+    
+    // Has rotary encoder moved?
+    if (cur->rotMoved)
+    {
+      // Get the movement (if valid)
+      int8_t rotationValue = checkRotaryEncoder(cur);
+      
+      // If valid movement, do something
+      if (rotationValue != 0)
+      {
+          rotationCounter += rotationValue * 5;
+          Serial.print(rotationValue < 1 ? "L" :  "R");
+          Serial.println(rotationCounter);
+      }
+    }
+  }
+}
+    /*
     // first, check state
     long newPosition = cur->enc.read();
     if (newPosition != cur->oldPosition && newPosition %  2 == 0) {
@@ -929,9 +1003,10 @@ void loopRotaries() {
         break;
       } 
     }
-    cur->button.lastStateSw = currentStateSw;
+    cur->button.lastStateSw = currentStateSw; 
   }
 }
+*/
 
 void drawLEDAltSpd(){
   int alt = 0;
