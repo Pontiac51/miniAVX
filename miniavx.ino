@@ -927,9 +927,36 @@ void loopRotaries() {
       // If valid movement, do something
       if (rotationValue != 0)
       {
-          rotationCounter += rotationValue * 5;
-          Serial.print(rotationValue < 1 ? "L" :  "R");
-          Serial.println(rotationCounter);
+        if(rotationValue > 0) {
+            // turned clockwise
+            switch(i){
+              case 0: //MAIN
+              mainDown();
+              break;
+              case 1: //LEFT
+              if(onLeftCW != NULL) onLeftCW();
+              break;
+              case 2: //RIGHT
+              if(onRightCW != NULL) onRightCW();
+              break;
+              default:
+              break;
+            }
+        } else {
+          // turned counter-clockwise
+          switch(i){
+            case 0: //MAIN
+            mainUp();
+            break;
+            case 1: //LEFT
+            if(onLeftCCW != NULL) onLeftCCW();
+            break;
+            case 2: //RIGHT
+            if(onRightCCW != NULL) onRightCCW();
+            break;
+            default:
+            break;
+        }            
       }
     }
   }
@@ -952,41 +979,13 @@ void loopRotaries() {
       if (currentStateClk != cur->lastStateClk) {
         // check for change
         if (currentStateClk == 1) { 
-          if(cur->lastStateDt == 0) {
-            // turned clockwise
-            switch(i){
-              case 0: //MAIN
-              mainDown();
-              break;
-              case 1: //LEFT
-              if(onLeftCW != NULL) onLeftCW();
-              break;
-              case 2: //RIGHT
-              if(onRightCW != NULL) onRightCW();
-              break;
-              default:
-              break;
-            }
-          } else {
-            // turned counter-clockwise
-            switch(i){
-              case 0: //MAIN
-              mainUp();
-              break;
-              case 1: //LEFT
-              if(onLeftCCW != NULL) onLeftCCW();
-              break;
-              case 2: //RIGHT
-              if(onRightCCW != NULL) onRightCCW();
-              break;
-              default:
-              break;
-            }            
+          
           }
         }
       }
       cur->lastStateClk = currentStateClk;
     }
+*/
 
     if (currentStateSw != cur->button.lastStateSw && currentStateSw == HIGH) {
       switch(i){
@@ -1006,7 +1005,7 @@ void loopRotaries() {
     cur->button.lastStateSw = currentStateSw; 
   }
 }
-*/
+
 
 void drawLEDAltSpd(){
   int alt = 0;
