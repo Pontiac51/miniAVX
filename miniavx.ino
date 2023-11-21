@@ -863,8 +863,8 @@ void loopRotaries() {
     cur = &rotaries[i];    
     // first, check state
     long newPosition = cur->enc.read();
-    if (newPosition != oldPosition && newPosition %  2 == 0) {
-      oldPosition = newPosition;
+    if (newPosition != cur->oldPosition && newPosition %  2 == 0) {
+      cur->oldPosition = newPosition;
 
       int currentStateClk = !digitalRead(cur->gpioClk);
       int currentStateDt = !digitalRead(cur->gpioDt);
