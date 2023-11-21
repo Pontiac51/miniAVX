@@ -18,10 +18,10 @@ struct Rotary {
   uint8_t gpioDt;
   volatile bool rotMoved;
   Button button;
-  void rotary();
+  void* rotary(Rotary*);
 };
 
-// #define ROTARIES 3
+#define ROTARIES 3
 Rotary rotaries[ROTARIES];
 
 // debouncing
@@ -215,9 +215,9 @@ void onBrightInvSelect() {
 }
 
 // Interrupt routines just set a flag when rotation is detected
-void IRAM_ATTR Rotary::rotary()
+void rotary(Rotary *cur)
 {
-  rotationCounter += checkRotaryEncoder(cur);
+  cur->rotationCounter += checkRotaryEncoder(cur);
 }
 
 // Rotary encoder has moved (interrupt tells us) but what happened?
@@ -225,7 +225,7 @@ void IRAM_ATTR Rotary::rotary()
 int8_t checkRotaryEncoder(Rotary *cur)
 {
     // Reset the flag that brought us here (from ISR)
-    cur->rotaryEncoder = false;
+    cur->rotMoved = false;
 
     static uint8_t lrmem = 3;
     static int lrsum = 0;
@@ -268,7 +268,7 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
   cur->gpioClk = gpioClk;
   cur->gpioDt = gpioDt;
   cur->rotMoved = false;
-  cur->button.gpioSw = gpioSW;
+  cur->button.gpioSw = gpioSw;
   cur->button.lastStateSw = LOW;
   
   // The module already has pullup resistors on board
@@ -279,8 +279,8 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
   pinMode(cur->button.gpioSw, INPUT_PULLUP);
 
   // We need to monitor both pins, rising and falling for all states
-  attachInterrupt(digitalPinToInterrupt(cur->gpioClk), cur->rotary, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(cur->gpioDt), cur->rotary, CHANGE);  
+  attachInterrupt(digitalPinToInterrupt(cur->gpioClk), cur->rotary(cur), CHANGE);
+  attachInterrupt(digitalPinToInterrupt(cur->gpioDt), cur->rotary(cur), CHANGE);  
 }
 
 void setup() {
@@ -912,7 +912,9 @@ void invSelected(int iItem, int itemArr, int cursorArr){
 void loopRotaries() {
   Rotary *cur;
   for (int i = 0; i < ROTARIES; i++) {
-    cur = &rotaries[i];      
+    cur = &rotaries[i];
+    // first, check state
+    int currentStateSw = digitalRead(cur->button.gpioSw);      
     // If valid movement, do something
     while(cur->rotationCounter != 0)
     {
