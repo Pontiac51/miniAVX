@@ -2,7 +2,7 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "1.94.090";
+String version = "2.00.090";
 String BADversion = "0.9.0";
 
 //data type for button
@@ -217,7 +217,7 @@ void onBrightInvSelect() {
 // Interrupt routines just set a flag when rotation is detected
 void IRAM_ATTR Rotary::rotary()
 {
-    rotMoved = true;
+  rotationCounter += checkRotaryEncoder(cur);
 }
 
 // Rotary encoder has moved (interrupt tells us) but what happened?
@@ -241,33 +241,30 @@ int8_t checkRotaryEncoder(Rotary *cur)
     // Convert the bit pattern to a movement indicator (14 = impossible, ie switch bounce)
     lrsum += TRANS[lrmem];
 
-    /* encoder not in the neutral (detent) state */
+    // encoder not in the neutral (detent) state
     if (lrsum % 4 != 0)
     {
         return 0;
     }
-
-    /* encoder in the neutral state - clockwise rotation*/
+    // encoder in the neutral state - clockwise rotation
     if (lrsum == 4)
     {
         lrsum = 0;
         return 1;
     }
-
-    /* encoder in the neutral state - anti-clockwise rotation*/
+    // encoder in the neutral state - anti-clockwise rotation
     if (lrsum == -4)
     {
         lrsum = 0;
         return -1;
     }
-
     // An impossible rotation has been detected - ignore the movement
     lrsum = 0;
     return 0;
 }
 
 void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) {
-  cur->rotationCounter = 200;
+  cur->rotationCounter = 0;
   cur->gpioClk = gpioClk;
   cur->gpioDt = gpioDt;
   cur->rotMoved = false;
@@ -914,79 +911,45 @@ void invSelected(int iItem, int itemArr, int cursorArr){
 
 void loopRotaries() {
   Rotary *cur;
-
   for (int i = 0; i < ROTARIES; i++) {
-    cur = &rotaries[i];
-    
-    // Has rotary encoder moved?
-    if (cur->rotMoved)
+    cur = &rotaries[i];      
+    // If valid movement, do something
+    while(cur->rotationCounter != 0)
     {
-      // Get the movement (if valid)
-      int8_t rotationValue = checkRotaryEncoder(cur);
-      
-      // If valid movement, do something
-      if (rotationValue != 0)
-      {
-        if(rotationValue > 0) {
-            // turned clockwise
-            switch(i){
-              case 0: //MAIN
-              mainDown();
-              break;
-              case 1: //LEFT
-              if(onLeftCW != NULL) onLeftCW();
-              break;
-              case 2: //RIGHT
-              if(onRightCW != NULL) onRightCW();
-              break;
-              default:
-              break;
-            }
-        } else {
-          // turned counter-clockwise
-          switch(i){
-            case 0: //MAIN
-            mainUp();
-            break;
-            case 1: //LEFT
-            if(onLeftCCW != NULL) onLeftCCW();
-            break;
-            case 2: //RIGHT
-            if(onRightCCW != NULL) onRightCCW();
-            break;
-            default:
-            break;
+      if(cur->rotationCounter > 0) {
+        // turned clockwise
+        cur->rotationCounter--;
+        switch(i){
+          case 0: //MAIN
+          mainDown();
+          break;
+          case 1: //LEFT
+          if(onLeftCW != NULL) onLeftCW();
+          break;
+          case 2: //RIGHT
+          if(onRightCW != NULL) onRightCW();
+          break;
+          default:
+          break;
+        }
+      } else {
+        // turned counter-clockwise
+        cur->rotationCounter++;
+        switch(i){
+          case 0: //MAIN
+          mainUp();
+          break;
+          case 1: //LEFT
+          if(onLeftCCW != NULL) onLeftCCW();
+          break;
+          case 2: //RIGHT
+          if(onRightCCW != NULL) onRightCCW();
+          break;
+          default:
+          break;
         }            
       }
     }
-  }
-}
-    /*
-    // first, check state
-    long newPosition = cur->enc.read();
-    if (newPosition != cur->oldPosition && newPosition %  2 == 0) {
-      cur->oldPosition = newPosition;
-
-      int currentStateClk = !digitalRead(cur->gpioClk);
-      int currentStateDt = !digitalRead(cur->gpioDt);
-      int currentStateSw = digitalRead(cur->button.gpioSw);
-
-      if (currentStateDt != cur->lastStateDt) {
-      // check for change
-      cur->lastStateDt = currentStateDt;
-      }
-    
-      if (currentStateClk != cur->lastStateClk) {
-        // check for change
-        if (currentStateClk == 1) { 
-          
-          }
-        }
-      }
-      cur->lastStateClk = currentStateClk;
-    }
-*/
-
     if (currentStateSw != cur->button.lastStateSw && currentStateSw == HIGH) {
       switch(i){
         case 0: //MAIN
