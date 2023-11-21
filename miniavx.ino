@@ -1,23 +1,26 @@
 #include <BitsAndDroidsFlightConnector.h>
 #include <LedControl.h>
 #include <OLED_I2C.h>
+#include <Encoder.h>
 
-String version = "1.93.090";
+String version = "1.94.090";
 String BADversion = "0.9.0";
 
 // data type for button
 struct Button {
-    uint8_t gpioSw;
-    uint8_t lastStateSw;
+  uint8_t gpioSw;
+  uint8_t lastStateSw;
 };
 
 //data type for rotary
 struct Rotary {
+  long oldPosition;
   uint8_t gpioClk;
   uint8_t gpioDt;
   uint8_t lastStateClk;
   uint8_t lastStateDt;
   Button button;
+  Encoder enc;
 };
 
 #define ROTARIES 3
@@ -214,9 +217,10 @@ void onBrightInvSelect() {
 }
 
 void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) {
-  pinMode(gpioClk, INPUT_PULLUP);
-  pinMode(gpioDt, INPUT_PULLUP);
   pinMode(gpioSw, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(gpioSw), loopRotaries, RISING);
+  cur->enc = Encoder(gpioClk, gpioDt);
+  cur->oldPosition = -999;
   cur->gpioClk = gpioClk;
   cur->gpioDt = gpioDt;
   cur->button.gpioSw = gpioSw;
@@ -276,10 +280,10 @@ void setup() {
 void loop() {
   connectorRX.dataHandling();
   redrawLED();
-  if (millis() - lastSample > debounce){ // debouncing before checking rotaries again
-    lastSample = millis();
-    loopRotaries();
-  }
+  // if (millis() - lastSample > debounce){ // debouncing before checking rotaries again
+  //   lastSample = millis();
+  //   loopRotaries();
+  // }
 }
 
 void mainUp()  { //up function. selection sign ">" will move upwards.
@@ -854,22 +858,26 @@ void invSelected(int iItem, int itemArr, int cursorArr){
 
 void loopRotaries() {
   Rotary *cur;
-  
-  for (int i = 0; i < ROTARIES; i++) {
-    cur = &rotaries[i];
-    // first, check state
-    int currentStateClk = !digitalRead(cur->gpioClk);
-    int currentStateDt = !digitalRead(cur->gpioDt);
-    int currentStateSw = digitalRead(cur->button.gpioSw);
 
-    if (currentStateDt != cur->lastStateDt) {
-    // check for change
-    cur->lastStateDt = currentStateDt;
-    }
-    
-    if (currentStateClk != cur->lastStateClk) {
+  for (int i = 0; i < ROTARIES; i++) {
+    cur = &rotaries[i];    
+    // first, check state
+    long newPosition = cur->enc.read();
+    if (newPosition != oldPosition && newPosition %  2 == 0) {
+      oldPosition = newPosition;
+
+      int currentStateClk = !digitalRead(cur->gpioClk);
+      int currentStateDt = !digitalRead(cur->gpioDt);
+      int currentStateSw = digitalRead(cur->button.gpioSw);
+
+      if (currentStateDt != cur->lastStateDt) {
       // check for change
-      if (currentStateClk == 1) { 
+      cur->lastStateDt = currentStateDt;
+      }
+    
+      if (currentStateClk != cur->lastStateClk) {
+        // check for change
+        if (currentStateClk == 1) { 
           if(cur->lastStateDt == 0) {
             // turned clockwise
             switch(i){
@@ -901,6 +909,7 @@ void loopRotaries() {
               break;
             }            
           }
+        }
       }
       cur->lastStateClk = currentStateClk;
     }
