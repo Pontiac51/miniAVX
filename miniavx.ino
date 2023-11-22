@@ -2,8 +2,10 @@
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
-String version = "2.00.090";
-String BADversion = "0.9.0";
+#define ARDUINO_SAM_DUE
+
+String version = "2.00.160";
+String BADversion = "1.6.0";
 
 //data type for button
 struct Button {
@@ -18,7 +20,6 @@ struct Rotary {
   uint8_t gpioDt;
   volatile bool rotMoved;
   Button button;
-  void* rotary(Rotary*);
 };
 
 #define ROTARIES 3
@@ -29,8 +30,8 @@ unsigned long lastSample = 0;
 int debounce = 5; // time in ms
 
 //BAD - true for pro-micro / Leonardo
-BitsAndDroidsFlightConnector connectorTX(false, &Serial);
-BitsAndDroidsFlightConnector connectorRX(false, &SerialUSB);
+BitsAndDroidsFlightConnector connectorTX(&Serial);
+BitsAndDroidsFlightConnector connectorRX(&SerialUSB);
 
 // define 7-segment display
 #define REDRAW_INTERVAL 50
@@ -61,9 +62,10 @@ int menu = 0;
 int firstItem = 0;
 int selItem = 0;
 
-int idxApHdgGps = 3; // set where AP HDG-GPS page is in list
-int idxApAltVs = 2; // set where AP ALT-VS page is in list
-int idxApObs = 4; // set where AP OBS page is in list
+// set where page are in list
+int idxApHdgGps = 3;
+int idxApAltVs = 2;
+int idxApObs = 4;
 
 // Init Cursor
 int yArr[] = {14, 31, 48};
@@ -214,10 +216,18 @@ void onBrightInvSelect() {
     onRightCCW = NULL;
 }
 
-// Interrupt routines just set a flag when rotation is detected
-void rotary(Rotary *cur)
+// Interrupt routines
+void rotaryMain()
 {
-  cur->rotationCounter += checkRotaryEncoder(cur);
+  rotaries[0].rotationCounter += checkRotaryEncoder(&rotaries[0]);
+}
+void rotaryLeft()
+{
+  rotaries[1].rotationCounter += checkRotaryEncoder(&rotaries[1]);
+}
+void rotaryRight()
+{
+  rotaries[2].rotationCounter += checkRotaryEncoder(&rotaries[2]);
 }
 
 // Rotary encoder has moved (interrupt tells us) but what happened?
@@ -277,10 +287,6 @@ void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) 
 
   // But not for the push switch
   pinMode(cur->button.gpioSw, INPUT_PULLUP);
-
-  // We need to monitor both pins, rising and falling for all states
-  attachInterrupt(digitalPinToInterrupt(cur->gpioClk), cur->rotary(cur), CHANGE);
-  attachInterrupt(digitalPinToInterrupt(cur->gpioDt), cur->rotary(cur), CHANGE);  
 }
 
 void setup() {
@@ -298,8 +304,14 @@ void setup() {
  
   // rotaries
   setupRotary(&rotaries[0], 2, 3, 4);
+  attachInterrupt(digitalPinToInterrupt(2), rotaryMain, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(3), rotaryMain, CHANGE); 
   setupRotary(&rotaries[1], 5, 6, 7);
+  attachInterrupt(digitalPinToInterrupt(5), rotaryLeft, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(6), rotaryLeft, CHANGE); 
   setupRotary(&rotaries[2], 8, 9, 13);
+  attachInterrupt(digitalPinToInterrupt(8), rotaryRight, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(9), rotaryRight, CHANGE); 
 
   //Init LCD
   lc.shutdown(0,false);
@@ -460,11 +472,11 @@ void onTrimSwitch(){
 }
 
 void onAPMasterToggle(){
-  Serial.println(connectorTX.sendApMasterOn());
+  connectorTX.send(sendApMasterOn);
 }
 
 void onAPHdgToggle(){
-  Serial.println(connectorTX.sendAPHeadingHold());
+  connectorTX.send(sendAPHeadingHoldOn);
   if(!connectorRX.getAPHeadingLockOn()){
     ApHDGOn = " "; 
   } else {
@@ -475,23 +487,23 @@ void onAPHdgToggle(){
 }
 
 void onHdgIncrease(){
-  Serial.println(connectorTX.sendHeadingBugInc());
+  connectorTX.send(sendHeadingBugInc);
 }
 
 void onHdgDecrease(){
-  Serial.println(connectorTX.sendHeadingBugDec());
+  connectorTX.send(sendHeadingBugDec);
 }
 
 void onBaroIncrease(){
-  Serial.println(connectorTX.sendKohlsmanInc());
+  connectorTX.send(sendKohlsmanInc);
 }
 
 void onBaroDecrease(){
-  Serial.println(connectorTX.sendKohlsmanDec());
+  connectorTX.send(sendKohlsmanDec);
 }
 
 void onAPAltToggle(){
-  Serial.println(connectorTX.sendAPAltitudeHold());
+  connectorTX.send(sendAPAltitudeHold);
   if(!connectorRX.getAPAltitudeLockOn()){
     ApALTOn = " "; 
   } else {
@@ -502,15 +514,15 @@ void onAPAltToggle(){
 }
 
 void onAltIncrease(){
-  Serial.println(connectorTX.sendAPAltitudeInc());
+  connectorTX.send(sendAPAltitudeInc);
 }
 
 void onAltDecrease(){
-  Serial.println(connectorTX.sendAPAltitudeDec());
+  connectorTX.send(sendAPAltitudeDec);
 }
 
 void onAPVSToggle(){
-  Serial.println(connectorTX.sendAPVSHold());
+  connectorTX.send(sendAPVSHold);
   if(!connectorRX.getAPVerticalHoldOn()){
     ApVSOn = " "; 
   } else {
@@ -521,90 +533,90 @@ void onAPVSToggle(){
 }
 
 void onVsIncrease(){
-  Serial.println(connectorTX.sendAPVSInc());
+  connectorTX.send(sendAPVSInc);
 }
 
 void onVsDecrease(){
-  Serial.println(connectorTX.sendAPVSDec());
+  connectorTX.send(sendAPVSDec);
 }
 
 void onComSwitch(){
     if (!itemsMain[selItem].option){ // 1
-      Serial.println(connectorTX.sendSwapCom1());
+      connectorTX.send(sendSwapCom1);
     } else { // 2
-      Serial.println(connectorTX.sendSwapCom2());
+      connectorTX.send(sendSwapCom2);
     }  
 }
 
 void onComMhzIncrease(){
   if (!itemsMain[selItem].option){ // COM 1
-    Serial.println(connectorTX.sendCom1WholeInc());
+    connectorTX.send(sendCom1WholeInc);
   } else { // COM 2
-    Serial.println(connectorTX.sendCom2WholeInc());
+    connectorTX.send(sendCom2WholeInc);
   }  
 }
 
 void onComMhzDecrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendCom1WholeDec());
+    connectorTX.send(sendCom1WholeDec);
   } else { // 2
-    Serial.println(connectorTX.sendCom2WholeDec());
+    connectorTX.send(sendCom2WholeDec);
   }
 }
 
 void onComKhzIncrease(){
   if (!itemsMain[selItem].option){ // COM 1
-    Serial.println(connectorTX.sendCom1FractInc());
+    connectorTX.send(sendCom1FractInc);
   } else { // COM 2
-    Serial.println(connectorTX.sendCom2FractInc());
+    connectorTX.send(sendCom2FractInc);
   }  
 }
 
 void onComKhzDecrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendCom1FractDecr());
+    connectorTX.send(sendCom1FractDecr);
   } else { // 2
-    Serial.println(connectorTX.sendCom2FractDecr());
+    connectorTX.send(sendCom2FractDecr);
   }  
 }
 
 void onNavSwitch(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendSwapNav1());
+    connectorTX.send(sendSwapNav1);
   } else { // 2
-    Serial.println(connectorTX.sendSwapNav2());
+    connectorTX.send(sendSwapNav2);
   }  
 }
 
 void onNavMhzIncrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendIncWholeNav1());
+    connectorTX.send(sendIncWholeNav1);
   } else { // 2
-    Serial.println(connectorTX.sendIncWholeNav2());
+    connectorTX.send(sendIncWholeNav2);
   }  
 }
 
 void onNavMhzDecrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendDecWholeNav1());
+    connectorTX.send(sendDecWholeNav1);
   } else { // 2
-    Serial.println(connectorTX.sendDecWholeNav2());
+    connectorTX.send(sendDecWholeNav2);
   }  
 }
 
 void onNavKhzIncrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendIncFractNav1());
+    connectorTX.send(sendIncFractNav1);
   } else { // 2
-    Serial.println(connectorTX.sendIncFractNav2());
+    connectorTX.send(sendIncFractNav2);
   }  
 }
 
 void onNavKhzDecrease(){
   if (!itemsMain[selItem].option){ // 1
-    Serial.println(connectorTX.sendDecFractNav1());
+    connectorTX.send(sendDecFractNav1);
   } else { // 2
-    Serial.println(connectorTX.sendDecFractNav2());
+    connectorTX.send(sendDecFractNav2);
   }  
 }
 
@@ -619,13 +631,13 @@ void onAdfIncrease(){
   if (!itemsMain[selItem].option){ // 1
     switch (adfDigit){
       case 0:
-      Serial.println(connectorTX.sendAdf1Inc());
+      connectorTX.send(sendAdf1Inc);
       break;
       case 1:
-      Serial.println(connectorTX.sendAdf10Inc());
+      connectorTX.send(sendAdf10Inc);
       break;
       case 2:
-      Serial.println(connectorTX.sendAdf100Inc());
+      connectorTX.send(sendAdf100Inc);
       break;
       default:
       break;
@@ -633,13 +645,13 @@ void onAdfIncrease(){
   } else { // 2
     switch (adfDigit){
       case 0:
-      Serial.println(connectorTX.sendAdf21Inc());
+      connectorTX.send(sendAdf21Inc);
       break;
       case 1:
-      Serial.println(connectorTX.sendAdf210Inc());
+      connectorTX.send(sendAdf210Inc);
       break;
       case 2:
-      Serial.println(connectorTX.sendAdf2100Inc());
+      connectorTX.send(sendAdf2100Inc);
       break;
       default:
       break;
@@ -651,13 +663,13 @@ void onAdfDecrease(){
   if (!itemsMain[selItem].option){ // 1
     switch (adfDigit){
       case 0:
-      Serial.println(connectorTX.sendAdf1Dec());
+      connectorTX.send(sendAdf1Dec);
       break;
       case 1:
-      Serial.println(connectorTX.sendAdf10Dec());
+      connectorTX.send(sendAdf10Dec);
       break;
       case 2:
-      Serial.println(connectorTX.sendAdf100Dec());
+      connectorTX.send(sendAdf100Dec);
       break;
       default:
       break;
@@ -665,13 +677,13 @@ void onAdfDecrease(){
   } else { // 2
     switch (adfDigit){
       case 0:
-      Serial.println(connectorTX.sendAdf21Dec());
+      connectorTX.send(sendAdf21Dec);
       break;
       case 1:
-      Serial.println(connectorTX.sendAdf210Dec());
+      connectorTX.send(sendAdf210Dec);
       break;
       case 2:
-      Serial.println(connectorTX.sendAdf2100Dec());
+      connectorTX.send(sendAdf2100Dec);
       break;
       default:
       break;
@@ -690,16 +702,16 @@ void onXpndrIncrease(){
   if (!itemsMain[selItem].option){ // 1
     switch (xpndrDigit){
       case 0:
-      Serial.println(connectorTX.sendXpndr1Inc());
+      connectorTX.send(sendXpndr1Inc);
       break;
       case 1:
-      Serial.println(connectorTX.sendXpndr10Inc());
+      connectorTX.send(sendXpndr10Inc);
       break;
       case 2:
-      Serial.println(connectorTX.sendXpndr100Inc());
+      connectorTX.send(sendXpndr100Inc);
       break;
       case 3:
-      Serial.println(connectorTX.sendXpndr1000Inc());
+      connectorTX.send(sendXpndr1000Inc);
       break;
       default:
       break;
@@ -711,16 +723,16 @@ void onXpndrDecrease(){
   if (!itemsMain[selItem].option){ // 1
     switch (xpndrDigit){
       case 0:
-      Serial.println(connectorTX.sendXpndr1Dec());
+      connectorTX.send(sendXpndr1Dec);
       break;
       case 1:
-      Serial.println(connectorTX.sendXpndr10Dec());
+      connectorTX.send(sendXpndr10Dec);
       break;
       case 2:
-      Serial.println(connectorTX.sendXpndr100Dec());
+      connectorTX.send(sendXpndr100Dec);
       break;
       case 3:
-      Serial.println(connectorTX.sendXpndr1000Dec());
+      connectorTX.send(sendXpndr1000Dec);
       break;
       default:
       break;
@@ -729,23 +741,23 @@ void onXpndrDecrease(){
 }
 
 void onOBS1Increase(){
-  Serial.println(connectorTX.sendVor1ObiInc());
+  connectorTX.send(sendVor1ObiInc);
 }
 
 void onOBS1Decrease(){
-  Serial.println(connectorTX.sendVor1ObiDec());
+  connectorTX.send(sendVor1ObiDec);
 }
 
 void onOBS2Increase(){
-  Serial.println(connectorTX.sendVor2ObiInc());
+  connectorTX.send(sendVor2ObiInc);
 }
 
 void onOBS2Decrease(){
-  Serial.println(connectorTX.sendVor2ObiDec());
+  connectorTX.send(sendVor2ObiDec);
 }
 
 void onAPGPSToggle(){
-  Serial.println(connectorTX.sendToggleGPSDrivesNav1());
+  connectorTX.send(sendToggleGPSDrivesNav1);
   getAPGpsLockOn = !getAPGpsLockOn;
   if(!getAPGpsLockOn){
     ApGPSOn = " "; 
@@ -757,7 +769,7 @@ void onAPGPSToggle(){
 }
 
 void onAPNAVToggle(){
-  Serial.println(connectorTX.sendAPNav1Hold());
+  connectorTX.send(sendAPNav1Hold);
   if(!connectorRX.getAPNav1LockOn()){
     ApOBSOn = " "; 
   } else {
@@ -794,10 +806,10 @@ void onInvSwitch(){
 
 void onElvTrimUp(){
   if(!isElvTrimBIG){
-    Serial.println(connectorTX.sendElevTrimUp());
+    connectorTX.send(sendElevTrimUp);
   } else {
     for (int i = 0; i < 20; i++){
-      Serial.println(connectorTX.sendElevTrimUp());
+      connectorTX.send(sendElevTrimUp);
       delay(10);
     }
   }
@@ -805,10 +817,10 @@ void onElvTrimUp(){
 
 void onElvTrimDn(){
   if(!isElvTrimBIG){
-    Serial.println(connectorTX.sendElevTrimDn());
+    connectorTX.send(sendElevTrimDn);
   } else {
     for (int i = 0; i < 20; i++){
-      Serial.println(connectorTX.sendElevTrimDn());
+      connectorTX.send(sendElevTrimDn);
       delay(10);
     }
   }
@@ -817,19 +829,19 @@ void onElvTrimDn(){
 void onRudTrimL(){
   if (!itemsMain[selItem].option){
     if(!isRudTrimBIG){
-      Serial.println(connectorTX.sendRudderTrimLeft());
+      connectorTX.send(sendRudderTrimLeft);
     } else {
       for (int i = 0; i < 20; i++){
-        Serial.println(connectorTX.sendRudderTrimLeft());
+        connectorTX.send(sendRudderTrimLeft);
         delay(10);
       }
     }
   } else {
     if(!isAilTrimBIG){
-      Serial.println(connectorTX.sendAileronTrimLeft());
+      connectorTX.send(sendAileronTrimLeft);
     } else {
       for (int i = 0; i < 20; i++){
-        Serial.println(connectorTX.sendAileronTrimLeft());
+        connectorTX.send(sendAileronTrimLeft);
         delay(10);
       }
     }
@@ -839,19 +851,19 @@ void onRudTrimL(){
 void onRudTrimR(){
   if (!itemsMain[selItem].option){
     if(!isRudTrimBIG){
-      Serial.println(connectorTX.sendRudderTrimRight());
+      connectorTX.send(sendRudderTrimRight);
     } else {
       for (int i = 0; i < 20; i++){
-        Serial.println(connectorTX.sendRudderTrimRight());
+        connectorTX.send(sendRudderTrimRight);
         delay(10);
       }
     }
   } else {
     if(!isAilTrimBIG){
-      Serial.println(connectorTX.sendAileronTrimRight());
+      connectorTX.send(sendAileronTrimRight);
     } else {
       for (int i = 0; i < 20; i++){
-        Serial.println(connectorTX.sendAileronTrimRight());
+        connectorTX.send(sendAileronTrimRight);
         delay(10);
       }
     }
