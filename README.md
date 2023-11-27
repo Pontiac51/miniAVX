@@ -17,9 +17,9 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 ***UPDATE 2.00.160 (BitsAndDroids v1.6.0)***
 * NEW: Debounced buttons & handled rotary decoder via interrupts for better performance (especially on fast movements
 * CHANGED Removed AP Modes from OLED (had snyc issues), still available in digit display
-* BUG NAV Standby currently not working (no values from BitsAndDroids)
-* BUG V/S Mode Display currently not working (no values from BitsAndDroids)
-* BUG GPS Mode Display currently not working (not implemented)
+* BUG Display NAV Standby Frequencies not working (have to check)
+* BUG Autopilot V/S Mode Display not working (have to check)
+* BUG Auotpilot GPS Mode Display not working (not implemented)
 
 ***UPDATE 1.92.090 (BitsAndDroids v0.9.0)***
 * NEW AP Master ON/OFF on main switch in pages "HDG GPS", "ALT V/S" and "OBS"
