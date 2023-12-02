@@ -1,4 +1,4 @@
-# miniAVX 2.00.160 #
+# miniAVX 2.01.160 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
@@ -7,12 +7,17 @@ Current functions include:
 * Display ALT (MSL, AGL), SPD (IAS, GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
 * Set and display autopilot values: ALT and V/S
-* Set and display autopilot modes: Master, HDG, NAV, GPS, ALT and V/S (no display for GPS and V/S)
+* Set and display autopilot modes: Master, HDG, NAV, GPS, ALT and V/S (no display for GPS)
 * Display autopilot value: GPS course
 * Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2
 * Adjust brightness and invert display
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 2.01.160 (BitsAndDroids v1.6.0)***
+* CHANGED If Autopilot V/S is OFF "----" will be displayed
+* FIXED Display NAV Standby Frequencies not working
+* FIXED Display Autopilot V/S Mode Display not working
 
 ***UPDATE 2.00.160 (BitsAndDroids v1.6.0)***
 * NEW: Debounced buttons & handled rotary decoder via interrupts for better performance (especially on fast movements
