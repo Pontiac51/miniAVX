@@ -64,7 +64,6 @@ void drawLEDCom(){
 void drawLEDNav(){
     if (!itemsMain[selItem].option){ // 1
       displayLEDfreqNAV(connectorRX.getStandbyNav1());
-      // Serial.println("NAV1: " + connectorRX.getStandbyNav1());
     } else { // 2
       displayLEDfreqNAV(connectorRX.getStandbyNav2());
     }
@@ -175,38 +174,68 @@ void drawLEDBrightInv(){
 }
 
 void drawLEDAltVs(){
-  int alt = connectorRX.getApAltLock();
+  long int alt = connectorRX.getApAltLock();
   int vs = connectorRX.getApVerticalSpeed();
   boolean altOn = connectorRX.getAPAltitudeLockOn();
   boolean vsOn = connectorRX.getAPVerticalHoldOn();
+
   if (alt < 10000){
+    if (alt < 0){
+      alt = abs(alt);
+      if (alt >= 10000){
+        lc.setChar(0,7,'-',false);
+        lc.setChar(0,6,'-',false);
+        lc.setChar(0,5,'-',false);
+        lc.setChar(0,4,'-',altOn);
+
+      } else if (alt < 1000){
+        lc.setChar(0,7,'-',false);
+        lc.setChar(0,6,(alt/100)%10,false);
+        lc.setChar(0,5,(alt/10)%10,false);
+        lc.setChar(0,4,alt%10,altOn);
+      } else {    
+        lc.setChar(0,7,'-',false);
+        lc.setChar(0,6,(alt/1000)%10,true);
+        lc.setChar(0,5,(alt/100)%10,false);
+        lc.setChar(0,4,(alt/10)%10,altOn);
+      }
+    } else {
       lc.setChar(0,7,(alt/1000)%10,false);
       lc.setChar(0,6,(alt/100)%10,false);
       lc.setChar(0,5,(alt/10)%10,false);
       lc.setChar(0,4,alt%10,altOn);
+    }
   } else {    
     lc.setChar(0,7,'F',false);
     lc.setChar(0,6,(alt/10000)%10,false);
     lc.setChar(0,5,(alt/1000)%10,false);
     lc.setChar(0,4,(alt/100)%10,altOn);
   }
-  if (vs < 0){
-    if (abs(vs) >= 1000){
+  if (!vsOn){
       lc.setChar(0,3,'-',false);
-      lc.setChar(0,2,(abs(vs)/1000)%10,true);
-      lc.setChar(0,1,(abs(vs)/100)%10,false);
-      lc.setChar(0,0,(abs(vs)/10)%10,vsOn);
-    } else {
-      lc.setChar(0,3,'-',false);
-      lc.setChar(0,2,(abs(vs)/100)%10,false);
-      lc.setChar(0,1,(abs(vs)/10)%10,false);
-      lc.setChar(0,0,abs(vs)%10,vsOn);    
-    }
+      lc.setChar(0,2,'-',false);
+      lc.setChar(0,1,'-',false);
+      lc.setChar(0,0,'-',vsOn);
+
   } else {
-    lc.setChar(0,3,(vs/1000)%10,false);
-    lc.setChar(0,2,(vs/100)%10,false);
-    lc.setChar(0,1,(vs/10)%10,false);
-    lc.setChar(0,0,vs%10,vsOn);
+    if (vs < 0){
+      if (abs(vs) >= 1000){
+        lc.setChar(0,3,'-',false);
+        lc.setChar(0,2,(abs(vs)/1000)%10,true);
+        lc.setChar(0,1,(abs(vs)/100)%10,false);
+        lc.setChar(0,0,(abs(vs)/10)%10,vsOn);
+      } else {
+        lc.setChar(0,3,'-',false);
+        lc.setChar(0,2,(abs(vs)/100)%10,false);
+        lc.setChar(0,1,(abs(vs)/10)%10,false);
+        lc.setChar(0,0,abs(vs)%10,vsOn);    
+      }
+    } else {
+      lc.setChar(0,3,(vs/1000)%10,false);
+      lc.setChar(0,2,(vs/100)%10,false);
+      lc.setChar(0,1,(vs/10)%10,false);
+      lc.setChar(0,0,vs%10,vsOn);
+    }
   }
 }
 

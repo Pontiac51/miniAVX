@@ -83,13 +83,6 @@ String pageALT = "MSL";
 boolean showGS = false;
 String pageSPD = "IAS";
 
-// Init AP Modes
-String ApHDGOn = " ";
-String ApGPSOn = " ";
-String ApALTOn = " ";
-String ApVSOn = " ";
-String ApOBSOn = " ";
-
 // constructor for menu item
 void addMenuItem(String entry, void (*onSelect)()) {
     if (mainMenuLength >= MAX_ITEMS) return;
@@ -186,9 +179,9 @@ void setup() {
   // menu create by aviate - navigate - communicate
   addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
-  addMenuItem("ALT" + ApALTOn + ApVSOn + "V/S", &onAltVsSelect);
-  addMenuItem("HDG" + ApHDGOn + ApGPSOn + "GPS", &onHdgGPSSelect);  
-  addMenuItem("OBS" + ApOBSOn + " 1-2", &onOBSSelect);
+  addMenuItem("ALT  V/S", &onAltVsSelect);
+  addMenuItem("HDG  GPS", &onHdgGPSSelect);  
+  addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("NAV1STBY", &onNavSelect);
   addMenuItem("ADF1 XP1", &onAdfXpndrSelect);
   addMenuItem("COM1STBY", &onComSelect);  
