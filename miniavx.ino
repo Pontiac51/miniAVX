@@ -4,7 +4,7 @@
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.00.160";
+String version = "2.01.160";
 String BADversion = "1.6.0";
 
 //data type for button
