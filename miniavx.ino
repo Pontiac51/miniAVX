@@ -4,8 +4,9 @@
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.01.160";
-String BADversion = "1.6.0";
+String version = "2.02.178";
+String BADConnector = "1.7.8";
+String BADLibrary = "1.6.0";
 
 //data type for button
 struct Button {
@@ -180,7 +181,7 @@ void setup() {
   addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
   addMenuItem("ALT  V/S", &onAltVsSelect);
-  addMenuItem("HDG  GPS", &onHdgGPSSelect);  
+  addMenuItem("HDG  -D>", &onHdgGPSSelect);  
   addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("NAV1STBY", &onNavSelect);
   addMenuItem("ADF1 XP1", &onAdfXpndrSelect);

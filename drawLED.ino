@@ -5,7 +5,11 @@ void drawLEDAltSpd(){
     if (!itemsMain[selItem].option){ // MSL    
       alt = connectorRX.getIndicatedAltitude();
     } else { // AGL
-      alt = connectorRX.getFeetAboveGround();
+      if (!connectorRX.getOnGround()){
+        alt = connectorRX.getFeetAboveGround();
+      } else {
+        alt = 0;
+      }
     }
   } else {
     alt = connectorRX.getKohlmanAltimeter();
