@@ -14,7 +14,7 @@ Current functions include:
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
-***UPDATE 2.01.178 (BitsAndDroids Library v1.6.0 & Connector 1.7.8)***
+***UPDATE 2.02.178 (BitsAndDroids Library v1.6.0 & Connector 1.7.8)***
 * CHANGED "GPS" to "-D>" as it now displays direct heading to next waypoint of flightplan (button press is still GPS-NAV switch)
 * CHANGED If the aircraft is on the ground altitude AGL is displayed as 0
 * FIXED Kohlsman HG reading incorrectly (29 instead of 29.92)
