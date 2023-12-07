@@ -7,7 +7,7 @@ Current functions include:
 * Display ALT (MSL, AGL), SPD (IAS, GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
 * Set and display autopilot values: ALT and V/S
-* Set and display autopilot modes: Master, HDG, NAV, GPS, ALT and V/S (no display for GPS)
+* Set and display autopilot modes: Master, HDG, ALT, V/S, NAV, GPS (switch only)
 * Display direct course to next waypoint: -D>
 * Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2
 * Adjust brightness and invert display
