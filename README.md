@@ -16,8 +16,8 @@ Current functions include:
 Arduino code to be used with BitsAndDroids Connector and Library.
 
 ***UPDATE 2.17.163 (BitsAndDroids NEW Rust Connector 0.2.17 & Library v1.6.3)***
-* NEW: Clock with Local and Zulu time and Stopwatch and customizable Timer
-* BUG: ADFs currently dont work correctly if 4 digits.
+* NEW: Clock with Local and Zulu time, stopwatch and customizable timer
+* BUG: ADFs not displayed correctly if 4 digits.
 
 ***UPDATE 2.02.178 (BitsAndDroids Library v1.6.0 & Connector 1.7.8)***
 * CHANGED "GPS" to "-D>" as it now displays direct heading to next waypoint of flightplan (button press is still GPS-NAV switch)
