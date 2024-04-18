@@ -109,28 +109,33 @@ void drawLEDObs(){
 }
 
 void drawLEDAdfXpndr(){
-  long adf = 0;
+  String adf = "----.---";
   long xpndr = 0;
   if (!itemsMain[selItem].option){ // 1
-    adf = connectorRX.getAdfStandbyFreq1().toInt();
+    adf = connectorRX.getAdfStandbyFreq1();
     xpndr = connectorRX.getTransponderCode1().toInt();
   } else { // 2
-    adf = connectorRX.getAdfStandbyFreq2().toInt();
+    adf = connectorRX.getAdfStandbyFreq2();
     xpndr = connectorRX.getTransponderCode2().toInt();
   }
-  lc.setChar(0,7,(adf/1000)%10,false);
-  lc.setChar(0,6,(adf/100)%10,false);
-  lc.setChar(0,5,(adf/10)%10,false);
-  lc.setChar(0,4,adf%10,false);
+  adf = adf.substring(0, adf.indexOf(".") - 1);
+  if (adf.length() != 4){
+    adf = "0" + adf;
+  }
+  lc.setChar(0,7,adf.charAt(0),false);
+  lc.setChar(0,6,adf.charAt(1),false);
+  lc.setChar(0,5,adf.charAt(2),false);
+  lc.setChar(0,4,adf.charAt(3),false);
+
   switch (adfDigit){
     case 0:
-    lc.setChar(0,4,adf%10,true); 
+    lc.setChar(0,4,adf.charAt(3),true); 
     break;
     case 1:
-    lc.setChar(0,5,(adf/10)%10,true);
+    lc.setChar(0,5,adf.charAt(2),true);
     break;
     case 2:
-    lc.setChar(0,6,(adf/100)%10,true);
+    lc.setChar(0,6,adf.charAt(1),true);
     break;
     default:
     break;
@@ -271,6 +276,97 @@ void drawLEDTrim(){
   lc.setChar(0,2,(r/100)%10, false);
   lc.setChar(0,1,(r/10)%10, false);
   lc.setChar(0,0,r%10, false);
+}
+
+void drawLEDClk(){
+  String time = "--:--:--"; // BAD Format
+  boolean showClkDot = true;
+  long h = 0;
+  long m = 0;
+  long s = 0;
+  long mTmr = 0;
+  long sTmr = 0;
+
+  // blink the dot
+  if((millis()/2000)%2 == 0){
+    showClkDot = true;
+  } else {
+    showClkDot = false;
+  }
+
+  if(!showZ){
+    time = connectorRX.getLocalTime();
+  } else {
+    time = connectorRX.getZuluTime();
+  }
+  
+  lc.setChar(0,7,time.charAt(0),false);
+  lc.setChar(0,6,time.charAt(1),showClkDot);
+  lc.setChar(0,5,time.charAt(3),false);
+  lc.setChar(0,4,time.charAt(4),showZ);
+
+  if (!itemsMain[selItem].option){
+      // display stopwatch
+    if(millisStartStw > 0){ 
+      // stopwatch running
+      if (currStateStw == 1){
+        millisStw = millis() - millisStartStw;
+      }
+      if(millisStw > 3599999){ 
+        // 1 hour or more
+        h = millisStw/1000/3600;
+        m = (millisStw/1000/60)%60;
+        lc.setChar(0,3,(h/10)%10,false);
+        if (currStateStw == 1){
+          lc.setChar(0,2,h%10,showClkDot);
+        } else {
+          lc.setChar(0,2,h%10,true);
+        }
+        lc.setChar(0,1,(m/10)%10,false);
+        lc.setChar(0,0,m%10,false);
+      } else { 
+        // less then 1 hour
+        m = millisStw/1000/60;
+        s = (millisStw/1000)%60;
+        lc.setChar(0,3,(m/10)%10,false);
+        if (currStateStw != 1){
+          lc.setChar(0,2,m%10,true);
+        } else {          
+          lc.setChar(0,2,m%10,showClkDot);
+        }
+        lc.setChar(0,1,(s/10)%10,false);
+        lc.setChar(0,0,s%10,false);
+      }
+    } else {
+      lc.setChar(0,3,'-',false);
+      lc.setChar(0,2,'-',true);
+      lc.setChar(0,1,'-',false);
+      lc.setChar(0,0,'-',false);
+    }  
+  } else {
+    // display timer
+    switch (currStateTmr){
+      case 0:
+        millisTmr = minsTmr * 60 * 1000 + secsTmr * 1000;
+      break;
+      case 1:
+        millisTmr = (minsTmr * 60 * 1000 + secsTmr * 1000) - (millis() - millisStartTmr); // Millissecs to display (Start value minus time passed)
+      break;
+      case 2:
+      break;
+    }
+
+    mTmr = millisTmr/1000/60;
+    sTmr = (millisTmr/1000)%60;
+    lc.setChar(0,3,(mTmr/10)%10,false);
+    if (currStateTmr != 1){
+      lc.setChar(0,2,mTmr%10,true);
+    } else {
+      lc.setChar(0,2,mTmr%10,showClkDot);
+    }
+    lc.setChar(0,1,(sTmr/10)%10,false);
+    lc.setChar(0,0,sTmr%10,false);
+  }
 }
 
 void redrawLED() {

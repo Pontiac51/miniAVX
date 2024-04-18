@@ -1,12 +1,14 @@
 #include <BitsAndDroidsFlightConnector.h>
+
+#include <BitsAndDroidsFlightConnector.h>
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.02.178";
-String BADConnector = "1.7.8";
-String BADLibrary = "1.6.0";
+String version = "2.14.163";
+String BADConnector = "0.2.14"; // this is the new app (04/2024)
+String BADLibrary = "1.6.3";
 
 //data type for button
 struct Button {
@@ -44,7 +46,7 @@ OLED myOLED(SDA, SCL);
 extern uint8_t TinyFont[];
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
-int brightness = 0;
+int brightness = 1;
 boolean inverted = false;
 
 //data tpye for menu item
@@ -83,6 +85,19 @@ String pageALT = "MSL";
 //Init SPD page
 boolean showGS = false;
 String pageSPD = "IAS";
+
+//Init CLK page
+boolean showZ = false;
+// Stopwatch (counting up)
+long millisStartStw = 0;
+long millisStw = 0;
+int currStateStw = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
+// Timer (counting down)
+long millisStartTmr = 0;
+long millisTmr = 0;
+int minsTmr = 0;
+int secsTmr = 0;
+int currStateTmr = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
 
 // constructor for menu item
 void addMenuItem(String entry, void (*onSelect)()) {
@@ -180,6 +195,7 @@ void setup() {
   // menu create by aviate - navigate - communicate
   addMenuItem("ELV  RUD", &onTrimSelect);
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
+  addMenuItem("CLK  STW", &onClkStwSelect);
   addMenuItem("ALT  V/S", &onAltVsSelect);
   addMenuItem("HDG  -D>", &onHdgGPSSelect);  
   addMenuItem("OBS  1-2", &onOBSSelect);

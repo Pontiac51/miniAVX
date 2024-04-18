@@ -403,7 +403,7 @@ void onAPNAVToggle(){
 void onBrightIncrease(){
   brightness = brightness + 10;
   if (brightness > 255){
-    brightness = 0;
+    brightness = 1;
   }
   myOLED.setBrightness(brightness);
 }
@@ -446,5 +446,86 @@ void onRudTrimR(){
     connectorTX.send(sendRudderTrimRight);
   } else {
     connectorTX.send(sendAileronTrimRight);
+  }
+}
+   
+void onClkToggle(){
+  showZ = !showZ;
+}
+
+void onTmrToggle(){
+  if (!itemsMain[selItem].option){
+    // show stopwatch
+    currStateStw++;
+    if (currStateStw > 2){
+      currStateStw = 0;
+    }
+    // Has timer switched?
+    switch (currStateStw){
+      case 0:
+      millisStartStw = 0;
+      break;
+      case 1:
+      millisStartStw = millis();
+      break;
+      case 2:
+      break;
+    }
+  } else {
+    // show timer
+    currStateTmr++;
+    if (currStateTmr > 2){
+      currStateTmr = 0;
+    }
+    // Has timer switched?
+    switch (currStateTmr){
+      case 0:
+      millisStartTmr = 0;
+      break;
+      case 1:
+      millisStartTmr = millis();
+      break;
+      case 2:
+      break;
+    }
+  }
+}
+
+void onTmrSwitch(){
+  if (!itemsMain[selItem].option){ // 1
+    itemsMain[selItem].entry = "CLK  TMR";
+    itemsMain[selItem].option = true;
+  } else { // 2
+    itemsMain[selItem].entry = "CLK  STW";
+    itemsMain[selItem].option = false;
+  }
+  updateOLED();  
+}
+
+// Right Turn Increases Minutes of Timer in Increments of 1
+void onTmrInc(){
+  if(itemsMain[selItem].option && currStateTmr == 0){
+    // Timer can only be set if reset
+    minsTmr++;
+    if (minsTmr > 99){
+      minsTmr = 99;
+    }
+  }
+}
+
+// Left Turn Decreases Seconds of Timer in Increments of 10
+void onTmrDec(){
+  if(itemsMain[selItem].option && currStateTmr == 0){
+    // Timer can only be set if reset
+    secsTmr = secsTmr - 10;
+    if (secsTmr < 0){
+      if (minsTmr > 0){
+        secsTmr = 50;
+        minsTmr--;
+      } else {
+        minsTmr = 0;
+        secsTmr = 0;
+      }
+    }
   }
 }

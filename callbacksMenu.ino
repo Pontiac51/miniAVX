@@ -93,7 +93,18 @@ void onBrightInvSelect() {
     onLeftSelect = NULL; 
     onLeftCW = &onBrightIncrease;
     onLeftCCW = &onBrightDecrease;
-    onRightSelect = onInvSwitch;    
+    onRightSelect = &onInvSwitch;    
     onRightCW = NULL;
     onRightCCW = NULL;
+}
+
+void onClkStwSelect() {
+    drawLED = &drawLEDClk;
+    onMainSelect = &onTmrSwitch;    
+    onLeftSelect = &onClkToggle;
+    onLeftCW = NULL;
+    onLeftCCW = NULL;
+    onRightSelect = &onTmrToggle;
+    onRightCW = &onTmrInc;
+    onRightCCW = &onTmrDec;
 }
