@@ -1,4 +1,4 @@
-# miniAVX 2.20 #
+# miniAVX 2.21 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
@@ -14,6 +14,9 @@ Current functions include:
 * Adjust brightness and invert display
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 2.21 (BitsAndDroids NEW Rust Connector 0.2.18 & Library v1.6.6)***
+* FIXED: AP VS values are not displayed properly, setting works!
 
 ***UPDATE 2.20 (BitsAndDroids NEW Rust Connector 0.2.16 & Library v1.6.5)***
 * NEW: Display of Transponder Mode (Off, Stby, On, Alt, Grnd, Test if applicable)
