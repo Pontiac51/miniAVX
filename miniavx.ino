@@ -5,9 +5,9 @@
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.20";
-String BADConnector = "0.2.16"; // this is the new RUST app (04/2024)
-String BADLibrary = "1.6.5";
+String version = "2.21";
+String BADConnector = "0.2.18"; // this is the new RUST app (04/2024)
+String BADLibrary = "1.6.6";
 String BADVersion = BADConnector + "|" + BADLibrary;
 
 //data type for button
