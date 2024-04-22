@@ -19,6 +19,7 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 * NEW: Display of Transponder Mode (Off, Stby, On, Alt, Grnd, Test if applicable)
 * NEW: Display of IAS in Mach (Turn left knob in IAS mode to switch)
 * CHANGED: Shifted SPD page display on LED one to the left. Thx to fjbermejillo for the hint!
+* CHANGED: ADFs now displayed with Hz digit
 * FIXED: ADFs not displayed correctly if 4 digits.
 * BUG: AP VS values are not displayed properly, setting works!
 
