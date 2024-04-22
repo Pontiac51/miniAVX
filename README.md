@@ -15,14 +15,14 @@ Current functions include:
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
-***UPDATE 2.20 (BitsAndDroids NEW Rust Connector 0.2.17 & Library v1.6.5)***
+***UPDATE 2.20 (BitsAndDroids NEW Rust Connector 0.2.16 & Library v1.6.5)***
 * NEW: Display of Transponder Mode (Off, Stby, On, Alt, Grnd, Test if applicable)
 * NEW: Display of IAS in Mach (Turn left knob in IAS mode to switch)
 * CHANGED: Shifted SPD page display on LED one to the left. Thx to fjbermejillo for the hint!
 * FIXED: ADFs not displayed correctly if 4 digits.
 * BUG: AP VS values are not displayed properly, setting works!
 
-***UPDATE 2.17.163 (BitsAndDroids NEW Rust Connector 0.2.17 & Library v1.6.3)***
+***UPDATE 2.17.163 (BitsAndDroids NEW Rust Connector 0.2.14 & Library v1.6.3)***
 * NEW: Clock with Local and Zulu time, stopwatch and customizable timer
 * BUG: ADFs not displayed correctly if 4 digits.
 
