@@ -3,8 +3,8 @@ void onAltSpeedSelect() {
   drawLED = &drawLEDAltSpd;
   onMainSelect = &onSelectRadarAlt;
   onLeftSelect = &onSelectGroundSpeed;
-  onLeftCW = NULL;
-  onLeftCCW = NULL;
+  onLeftCW = &onSwitchKnotsMach;
+  onLeftCCW = &onSwitchKnotsMach;
   onRightSelect = &onSelectBaro;
   onRightCW = &onBaroIncrease;
   onRightCCW = &onBaroDecrease;
@@ -54,15 +54,26 @@ void onNavSelect() {
     onRightCCW = &onNavKhzDecrease;
 }
 
-void onAdfXpndrSelect() {
-    drawLED = &drawLEDAdfXpndr;
-    onMainSelect = &onAdfXpndrSelect12;
+void onAdfSelect() {
+    drawLED = &drawLEDAdf;
+    onMainSelect = &onAdfSelect12;
     onLeftSelect = &onAdfNext;
     onLeftCW = &onAdfIncrease;
     onLeftCCW = &onAdfDecrease;
-    onRightSelect = &onXpndrNext;
-    onRightCW = &onXpndrIncrease;
-    onRightCCW = &onXpndrDecrease;
+    onRightSelect = onAdfSwitch;
+    onRightCW = &onAdfHzIncrease;
+    onRightCCW = &onAdfHzDecrease;
+}
+
+void onXpndrSelect() {
+    drawLED = &drawLEDXpndr;
+    onMainSelect = &onXpndrSelect12;
+    onLeftSelect = &onXpndrNext;
+    onLeftCW = &onXpndrIncrease;
+    onLeftCCW = &onXpndrDecrease;
+    onRightSelect = &onXpndrIdent;
+    onRightCW = &onXpndrModeIncrease;
+    onRightCCW = &onXpndrModeDecrease;
 }
 
 void onOBSSelect() {

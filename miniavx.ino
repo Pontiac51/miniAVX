@@ -1,14 +1,14 @@
-#include <BitsAndDroidsFlightConnector.h>
-
+#include <LedControl.h>
 #include <BitsAndDroidsFlightConnector.h>
 #include <LedControl.h>
 #include <OLED_I2C.h>
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.14.163";
-String BADConnector = "0.2.14"; // this is the new app (04/2024)
-String BADLibrary = "1.6.3";
+String version = "2.20";
+String BADConnector = "0.2.16"; // this is the new RUST app (04/2024)
+String BADLibrary = "1.6.5";
+String BADVersion = BADConnector + "|" + BADLibrary;
 
 //data type for button
 struct Button {
@@ -74,8 +74,10 @@ int idxApObs = 4;
 int yArr[] = {14, 31, 48};
 int iArr = 0;
 
-// Init ADF & XPNDR
+// Init ADF
 int adfDigit = 2;
+
+// Init XPNDR
 int xpndrDigit = 3;
 
 //Init ALT page
@@ -84,6 +86,7 @@ String pageALT = "MSL";
 
 //Init SPD page
 boolean showGS = false;
+boolean showIAS = true;
 String pageSPD = "IAS";
 
 //Init CLK page
@@ -93,8 +96,9 @@ long millisStartStw = 0;
 long millisStw = 0;
 int currStateStw = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
 // Timer (counting down)
-long millisStartTmr = 0;
-long millisTmr = 0;
+long milTmrStart = 0; // start time of timer in millis
+long milTmrSpan = 0;  // preset run time of timer in millis
+long milTmrDisp = 0;  // time to show
 int minsTmr = 0;
 int secsTmr = 0;
 int currStateTmr = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
@@ -199,9 +203,10 @@ void setup() {
   addMenuItem("ALT  V/S", &onAltVsSelect);
   addMenuItem("HDG  -D>", &onHdgGPSSelect);  
   addMenuItem("OBS  1-2", &onOBSSelect);
-  addMenuItem("NAV1STBY", &onNavSelect);
-  addMenuItem("ADF1 XP1", &onAdfXpndrSelect);
-  addMenuItem("COM1STBY", &onComSelect);  
+  addMenuItem("NAV1 Sby", &onNavSelect);
+  addMenuItem("ADF1 Sby", &onAdfSelect);
+  addMenuItem("XPNDR1", &onXpndrSelect);
+  addMenuItem("COM1 Sby", &onComSelect);  
   addMenuItem("BRT  INV", &onBrightInvSelect);
  
   // rotaries
@@ -273,9 +278,9 @@ void displayOLEDtitle(){
   //myOLED.drawRoundRect(0,0,127,10);
   myOLED.drawLine(0,10,127,10);
   myOLED.setFont(SmallFont);
-  myOLED.print("miniAVX", LEFT, 1);
+  myOLED.print("miniAVX " + version, LEFT, 1);
   //myOLED.setFont(TinyFont);
-  myOLED.print(version, RIGHT, 1);
+  myOLED.print(removePeriodAndZero(BADVersion), RIGHT, 1);
   myOLED.setFont(BigFont);
 }
 
@@ -365,4 +370,14 @@ void pressAll3Buttons(){
     if(onLeftSelect != NULL) onLeftSelect();
     if(onRightSelect != NULL) onRightSelect();
   }
+}
+
+String removePeriodAndZero(String inputString) {
+    // Remove all periods (.)
+    inputString.replace(".", "");
+    // Remove all zeros (0)
+    inputString.replace("0", "");
+    
+    // Return the modified string
+    return inputString;
 }

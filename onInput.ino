@@ -59,6 +59,20 @@ void onSelectGroundSpeed(){
   updateOLED();
 }
 
+void onSwitchKnotsMach(){
+  if (!showGS){
+    if (!showIAS){
+      pageSPD = "IAS";
+      showIAS = true;
+    } else {
+      pageSPD = "M  ";
+      showIAS = false;
+    }
+  }
+  itemsMain[selItem].entry = pageSPD + "  " + pageALT;
+  updateOLED();
+}
+
 void onSelectBaro(){
   showBaro = !showBaro;
   if (showBaro){
@@ -76,10 +90,10 @@ void onSelectBaro(){
 
 void onComSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "COM2STBY";
+    itemsMain[selItem].entry = "COM2 Sby";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "COM1STBY";
+    itemsMain[selItem].entry = "COM1 Sby";
     itemsMain[selItem].option = false;
   }
   updateOLED();
@@ -87,24 +101,35 @@ void onComSelect12(){
 
 void onNavSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "NAV2STBY";
+    itemsMain[selItem].entry = "NAV2 Sby";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "NAV1STBY";
+    itemsMain[selItem].entry = "NAV1 Sby";
     itemsMain[selItem].option = false;
   }
   updateOLED();
 }
 
-void onAdfXpndrSelect12(){
+void onAdfSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "ADF2 XP2";
+    itemsMain[selItem].entry = "ADF2 Sby";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "ADF1 XP1";
+    itemsMain[selItem].entry = "ADF1 Sby";
     itemsMain[selItem].option = false;
   }
   adfDigit = 2;
+  updateOLED();
+}
+
+void onXpndrSelect12(){
+  if (!itemsMain[selItem].option){ // 1
+    itemsMain[selItem].entry = "XPNDR2";
+    itemsMain[selItem].option = true;
+  } else { // 2
+    itemsMain[selItem].entry = "XPNDR1";
+    itemsMain[selItem].option = false;
+  }
   xpndrDigit = 3;
   updateOLED();
 }
@@ -259,6 +284,17 @@ void onAdfNext(){
   }  
 }
 
+void onAdfSwitch(){
+  // not implemented in BAD
+  /*
+  if (!itemsMain[selItem].option){ // 1
+    connectorTX.send(sendSwapAdf1);
+  } else { // 2
+    connectorTX.send(sendSwapAdf2);
+  }
+  */  
+}
+
 void onAdfIncrease(){
   if (!itemsMain[selItem].option){ // 1
     switch (adfDigit){
@@ -323,6 +359,22 @@ void onAdfDecrease(){
   }  
 }
 
+void onAdfHzIncrease(){
+  if (!itemsMain[selItem].option){ // 1
+    connectorTX.send(sendAdf1TenthsInc);
+  } else { // 2
+    connectorTX.send(sendAdf2RadioThenthsInc);
+  }  
+}
+
+void onAdfHzDecrease(){
+  if (!itemsMain[selItem].option){ // 1
+    connectorTX.send(sendAdf1TenthsInc);
+  } else { // 2
+    connectorTX.send(sendAdf2RadioThenthsDec);
+  }  
+}
+
 void onXpndrNext(){
   xpndrDigit--;
   if (xpndrDigit < 0){
@@ -370,6 +422,18 @@ void onXpndrDecrease(){
       break;
     }
   }  
+}
+
+void onXpndrIdent(){
+
+}
+
+void onXpndrModeIncrease(){
+
+}
+
+void onXpndrModeDecrease(){
+  
 }
 
 void onOBS1Increase(){
@@ -480,10 +544,10 @@ void onTmrToggle(){
     // Has timer switched?
     switch (currStateTmr){
       case 0:
-      millisStartTmr = 0;
+      milTmrStart = 0;
       break;
       case 1:
-      millisStartTmr = millis();
+      milTmrStart = millis();
       break;
       case 2:
       break;
@@ -510,6 +574,7 @@ void onTmrInc(){
     if (minsTmr > 99){
       minsTmr = 99;
     }
+    milTmrSpan = minsTmr * 60 * 1000 + secsTmr * 1000;
   }
 }
 
@@ -527,5 +592,6 @@ void onTmrDec(){
         secsTmr = 0;
       }
     }
+    milTmrSpan = minsTmr * 60 * 1000 + secsTmr * 1000;
   }
 }

@@ -1,6 +1,6 @@
 void drawLEDAltSpd(){
   int alt = 0;
-  int spd = 0;
+  float spd = 0;
   if (!showBaro){
     if (!itemsMain[selItem].option){ // MSL    
       alt = connectorRX.getIndicatedAltitude();
@@ -14,15 +14,28 @@ void drawLEDAltSpd(){
   } else {
     alt = connectorRX.getKohlmanAltimeter();
   }    
-  if (!showGS){  
+  if (!showGS){ 
+    // show IAS or Mach
     spd = connectorRX.getIndicatedAirspeed();
+    if (!showIAS || spd > 999){
+      spd = spd / (38.9439 * sqrt((15 - 0.00357 * connectorRX.getIndicatedAltitude()) + 273.15));
+    }
   } else {
+    // show Groundspeed
     spd = connectorRX.getIndicatedGPSGroundspeed();
   }
-  lc.setChar(0,7,' ',false);
-  lc.setChar(0,6,(spd/100)%10,false);
-  lc.setChar(0,5,(spd/10)%10,false);
-  lc.setChar(0,4,spd%10,false);     
+  if (!showIAS && !showGS){
+    spd = round(spd * 100);
+    lc.setChar(0,7,(int(spd)/100)%10,true);
+    lc.setChar(0,6,(int(spd)/10)%10,false);
+    lc.setChar(0,5,int(spd)%10,false);
+    lc.setChar(0,4,' ',false);
+  } else {
+    lc.setChar(0,7,(round(spd)/100)%10,false);
+    lc.setChar(0,6,(round(spd)/10)%10,false);
+    lc.setChar(0,5,round(spd)%10,false);
+    lc.setChar(0,4,' ',false);
+  }    
   if (alt < 10000){
     lc.setChar(0,3,(alt/1000)%10,false);
     if (!showBaro){
@@ -108,58 +121,107 @@ void drawLEDObs(){
   lc.setChar(0,0,obs2%10,false);  
 }
 
-void drawLEDAdfXpndr(){
-  String adf = "----.---";
-  long xpndr = 0;
+void drawLEDAdf(){
+  long adf = 0;
   if (!itemsMain[selItem].option){ // 1
     adf = connectorRX.getAdfStandbyFreq1();
-    xpndr = connectorRX.getTransponderCode1().toInt();
   } else { // 2
     adf = connectorRX.getAdfStandbyFreq2();
-    xpndr = connectorRX.getTransponderCode2().toInt();
   }
-  adf = adf.substring(0, adf.indexOf(".") - 1);
-  if (adf.length() != 4){
-    adf = "0" + adf;
+  if (((adf/10000)%10) != 0){
+    lc.setChar(0,7,(adf/10000)%10,false);
+  } else {
+    lc.setChar(0,7,' ',false);
   }
-  lc.setChar(0,7,adf.charAt(0),false);
-  lc.setChar(0,6,adf.charAt(1),false);
-  lc.setChar(0,5,adf.charAt(2),false);
-  lc.setChar(0,4,adf.charAt(3),false);
+  lc.setChar(0,6,(adf/1000)%10,false);
+  lc.setChar(0,5,(adf/100)%10,false);
+  lc.setChar(0,4,(adf/10)%10,false);
 
   switch (adfDigit){
-    case 0:
-    lc.setChar(0,4,adf.charAt(3),true); 
+    case 0: 
     break;
     case 1:
-    lc.setChar(0,5,adf.charAt(2),true);
+    lc.setChar(0,5,(adf/100)%10,true);
     break;
     case 2:
-    lc.setChar(0,6,adf.charAt(1),true);
+    lc.setChar(0,6,(adf/1000)%10,true);
     break;
     default:
     break;
   }
-  lc.setChar(0,3,(xpndr/1000)%10,false);
-  lc.setChar(0,2,(xpndr/100)%10,false);
-  lc.setChar(0,1,(xpndr/10)%10,false);
-  lc.setChar(0,0,xpndr%10,false); 
+  lc.setChar(0,4,(adf/10)%10,true);
+  lc.setChar(0,3,adf%10,false);
+  lc.setChar(0,2,' ',false);
+  lc.setChar(0,1,' ',false);
+  lc.setChar(0,0,' ',false); 
+}
+
+void drawLEDXpndr(){
+  long xpndr = 0;
+  int state = 0;
+  boolean ident = false;
+  String mode = "----";
+  if (!itemsMain[selItem].option){ // 1
+    xpndr = connectorRX.getTransponderCode1().toInt();
+    state = connectorRX.getTransponderState1();
+    ident = connectorRX.getTransponderIdent1();
+  } else { // 2
+    xpndr = connectorRX.getTransponderCode2().toInt();
+    state = connectorRX.getTransponderState2();
+    ident = connectorRX.getTransponderIdent2();
+  }
+
+  lc.setChar(0,7,(xpndr/1000)%10,false);
+  lc.setChar(0,6,(xpndr/100)%10,false);
+  lc.setChar(0,5,(xpndr/10)%10,false);
+  lc.setChar(0,4,xpndr%10,false); 
   switch (xpndrDigit){
     case 0:
-    lc.setChar(0,0,xpndr%10,true); 
+    lc.setChar(0,4,xpndr%10,true); 
     break;
     case 1:
-    lc.setChar(0,1,(xpndr/10)%10,true);
+    lc.setChar(0,5,(xpndr/10)%10,true);
     break;
     case 2:
-    lc.setChar(0,2,(xpndr/100)%10,true);
+    lc.setChar(0,6,(xpndr/100)%10,true);
     break;
     case 3:
-    lc.setChar(0,3,(xpndr/1000)%10,true);
+    lc.setChar(0,7,(xpndr/1000)%10,true);
     break;
     default:
     break;
   }
+
+  if (!ident){
+    switch (state){
+      case 0:
+      mode = " 0FF";
+      break;
+      case 1:
+      mode = " 5by";
+      break;
+      case 2:
+      mode = " t5t";
+      break;
+      case 3:
+      mode = " 0n ";
+      break;
+      case 4:
+      mode = " ALt";
+      break;
+      case 5:
+      mode = " 6nd";
+      break;
+      default:
+      break;
+    }
+  } else {
+    mode ="1dnt";
+  }
+  lc.setChar(0,3,mode.charAt(0),false);
+  lc.setChar(0,2,mode.charAt(1),false);
+  lc.setChar(0,1,mode.charAt(2),false);
+  lc.setChar(0,0,mode.charAt(3),false);
 }
 
 void drawLEDBrightInv(){
@@ -345,19 +407,27 @@ void drawLEDClk(){
     }  
   } else {
     // display timer
+    // long milTmrStart = 0; // start time of timer in millis
+    // long milTmrSpan = 0;  // preset run time of timer in millis
+    // long milTmrDisp = 0;  // time to show
+
     switch (currStateTmr){
       case 0:
-        millisTmr = minsTmr * 60 * 1000 + secsTmr * 1000;
+        milTmrDisp = milTmrSpan;
       break;
       case 1:
-        millisTmr = (minsTmr * 60 * 1000 + secsTmr * 1000) - (millis() - millisStartTmr); // Millissecs to display (Start value minus time passed)
+      if (milTmrSpan >= (millis() - milTmrStart)){
+        milTmrDisp = milTmrSpan - (millis() - milTmrStart); // Millissecs to display (Start value minus time passed)
+      } else {
+        milTmrDisp = (millis() - milTmrStart) - milTmrSpan;
+      }
       break;
       case 2:
       break;
     }
 
-    mTmr = millisTmr/1000/60;
-    sTmr = (millisTmr/1000)%60;
+    mTmr = milTmrDisp/1000/60;
+    sTmr = (milTmrDisp/1000)%60;
     lc.setChar(0,3,(mTmr/10)%10,false);
     if (currStateTmr != 1){
       lc.setChar(0,2,mTmr%10,true);
