@@ -3,17 +3,24 @@
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 Current functions include:
-* Trim Elevator, Rudder & Aileron with fine/coarse modes and display in %
-* Display ALT (MSL, AGL), SPD (IAS, GS) and QNH with adjustment knob
+* Trim Elevator, Rudder & Aileron with display in %
+* Display ALT (MSL, AGL), SPD (IAS (knts or Mach), GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
 * Set and display autopilot values: ALT and V/S
 * Set and display autopilot modes: Master, HDG, ALT, V/S, NAV, GPS (switch only)
 * Display direct course to next waypoint: -D>
-* Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2
+* Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2 (with Mode)
 * Chronometer (Clock, Stopwatch and Timer)
 * Adjust brightness and invert display
 
 Arduino code to be used with BitsAndDroids Connector and Library.
+
+***UPDATE 2.20 (BitsAndDroids NEW Rust Connector 0.2.17 & Library v1.6.5)***
+* NEW: Display of Transponder Mode (Off, Stby, On, Alt, Grnd, Test if applicable)
+* NEW: Display of IAS in Mach (Turn left knob in IAS mode to switch)
+* CHANGED: Shifted SPD page display on LED one to the left. Thx to fjbermejillo for the hint!
+* FIXED: ADFs not displayed correctly if 4 digits.
+* BUG: AP VS values are not displayed properly, setting works!
 
 ***UPDATE 2.17.163 (BitsAndDroids NEW Rust Connector 0.2.17 & Library v1.6.3)***
 * NEW: Clock with Local and Zulu time, stopwatch and customizable timer
