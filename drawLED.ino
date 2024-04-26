@@ -231,12 +231,10 @@ void drawLEDBrightInv(){
   } else {
     inv[0] = 0; inv[1] = 'F'; inv[2] = 'F';
   }  
-  char bright[4];
-  sprintf(bright, "%03u", brightness);
   lc.setChar(0,7,'B',false);
   lc.setChar(0,6,' ',false);
-  lc.setChar(0,5,bright[0],false);
-  lc.setChar(0,4,bright[1],false);
+  lc.setChar(0,5,(LCDbright/10)%10,false);
+  lc.setChar(0,4,LCDbright%10,false);
   lc.setChar(0,3,' ',false);
   lc.setChar(0,2,inv[0],false);
   lc.setChar(0,1,inv[1],false);

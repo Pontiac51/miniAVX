@@ -124,10 +124,10 @@ void onAdfSelect12(){
 
 void onXpndrSelect12(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "XPNDR2";
+    itemsMain[selItem].entry = "XPNDR2  ";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "XPNDR1";
+    itemsMain[selItem].entry = "XPNDR1  ";
     itemsMain[selItem].option = false;
   }
   xpndrDigit = 3;
@@ -465,19 +465,29 @@ void onAPNAVToggle(){
 }
 
 void onBrightIncrease(){
-  brightness = brightness + 10;
-  if (brightness > 255){
-    brightness = 1;
+  OLEDbright = OLEDbright + 17;
+  LCDbright = LCDbright + 1;
+  if (OLEDbright > 255){
+    OLEDbright = 0;
   }
-  myOLED.setBrightness(brightness);
+  if (LCDbright > 15){
+    LCDbright = 0;
+  }
+  myOLED.setBrightness(OLEDbright);
+  lc.setIntensity(0,LCDbright);
 }
 
 void onBrightDecrease(){
-  brightness = brightness - 10;
-  if (brightness < 0){
-    brightness = 255;
+  OLEDbright = OLEDbright - 17;
+  LCDbright = LCDbright - 1;
+  if (OLEDbright < 0){
+    OLEDbright = 255;
   }
-  myOLED.setBrightness(brightness);  
+  if (LCDbright < 0){
+    LCDbright = 15;
+  }
+  myOLED.setBrightness(OLEDbright);
+  lc.setIntensity(0,LCDbright);  
 }
 
 void onInvSwitch(){

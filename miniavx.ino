@@ -5,8 +5,8 @@
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.21";
-String BADConnector = "0.2.18"; // this is the new RUST app (04/2024)
+String version = "2.25";
+String BADConnector = "0.3.2"; // this is the new RUST app (04/2024)
 String BADLibrary = "1.6.6";
 String BADVersion = BADConnector + "|" + BADLibrary;
 
@@ -35,19 +35,6 @@ int debounce = 5; // time in ms
 //BAD - true for pro-micro / Leonardo
 BitsAndDroidsFlightConnector connectorTX(&Serial);
 BitsAndDroidsFlightConnector connectorRX(&SerialUSB);
-
-// define 7-segment display
-#define REDRAW_INTERVAL 50
-long lastRedraw = 0;
-LedControl lc=LedControl(12,11,10,1);
-
-// define OLED
-OLED myOLED(SDA, SCL);
-extern uint8_t TinyFont[];
-extern uint8_t SmallFont[];
-extern uint8_t BigFont[];
-int brightness = 1;
-boolean inverted = false;
 
 //data tpye for menu item
 struct menuItem {
@@ -178,6 +165,20 @@ int8_t checkRotaryEncoder(Rotary *cur)
     return 0;
 }
 
+// define OLED
+OLED myOLED(SDA, SCL);
+extern uint8_t TinyFont[];
+extern uint8_t SmallFont[];
+extern uint8_t BigFont[];
+int OLEDbright = 17;
+boolean inverted = false;
+
+// define 7-segment display
+#define REDRAW_INTERVAL 50
+long lastRedraw = 0;
+LedControl lc=LedControl(12,11,10,1);
+int LCDbright = 1;
+
 void setupRotary(Rotary *cur, uint8_t gpioClk, uint8_t gpioDt , uint8_t gpioSw) {
   cur->rotationCounter = 0;
   cur->gpioClk = gpioClk;
@@ -205,10 +206,27 @@ void setup() {
   addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("NAV1 Sby", &onNavSelect);
   addMenuItem("ADF1 Sby", &onAdfSelect);
-  addMenuItem("XPNDR1", &onXpndrSelect);
+  addMenuItem("XPNDR1  ", &onXpndrSelect);
   addMenuItem("COM1 Sby", &onComSelect);  
   addMenuItem("BRT  INV", &onBrightInvSelect);
- 
+
+  // Init OLED
+  myOLED.begin(); 
+  myOLED.clrScr();  
+  myOLED.setFont(SmallFont);
+  myOLED.setBrightness(OLEDbright);
+  displayOLEDtitle();
+  myOLED.print("Loading", 0, yArr[0]);
+  myOLED.update();
+
+  //Init LCD
+  delay(1000);
+  lc.shutdown(0,false);
+  lc.setIntensity(0,LCDbright);
+  for(int i = 0; i <= 7; i++){
+    lc.setChar(0,i,8,true);
+  }
+
   // rotaries
   setupRotary(&rotaries[0], 2, 3, 4);
   attachInterrupt(digitalPinToInterrupt(2), rotaryMain, CHANGE);
@@ -219,22 +237,6 @@ void setup() {
   setupRotary(&rotaries[2], 8, 9, 13);
   attachInterrupt(digitalPinToInterrupt(8), rotaryRight, CHANGE);
   attachInterrupt(digitalPinToInterrupt(9), rotaryRight, CHANGE); 
-
-  //Init LCD
-  lc.shutdown(0,false);
-  lc.setIntensity(0,1);
-  for(int i = 0; i <= 7; i++){
-    lc.setChar(0,i,8,true);
-  }
-  
-  // Init OLED
-  myOLED.begin(); 
-  myOLED.clrScr();  
-  myOLED.setFont(SmallFont);
-  myOLED.setBrightness(brightness);
-  displayOLEDtitle();
-  myOLED.print("Loading", 0, yArr[0]);
-  myOLED.update();
   
   // Init START PAGE
   delay(1000);
