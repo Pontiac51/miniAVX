@@ -15,6 +15,10 @@ Current functions include:
 
 Arduino code to be used with BitsAndDroids Connector and Library.
 
+***UPDATE 2.25 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
+* FIXED: Brightness now changes OLED and LED in 15 steps.
+* ADDED: STL files for 3D Printing
+
 ***UPDATE 2.21 (BitsAndDroids NEW Rust Connector 0.2.18 & Library v1.6.6)***
 * FIXED: AP VS values are now displayed properly.
 
