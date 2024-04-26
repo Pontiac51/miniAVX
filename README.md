@@ -1,4 +1,4 @@
-# miniAVX 2.21 #
+# miniAVX 2.25 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
