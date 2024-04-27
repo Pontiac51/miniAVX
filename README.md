@@ -2,7 +2,7 @@
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
-Current functions include:
+***Functions:***
 * Trim Elevator, Rudder & Aileron with display in %
 * Display ALT (MSL, AGL), SPD (IAS (knts or Mach), GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
