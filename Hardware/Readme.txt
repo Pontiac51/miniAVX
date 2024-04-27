@@ -1,0 +1,1 @@
+All hardware related information, like pictures of used hardware and the schematics.
