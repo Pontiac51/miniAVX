@@ -13,7 +13,14 @@ Current functions include:
 * Chronometer (Clock, Stopwatch and Timer)
 * Adjust brightness and invert display
 
-Arduino code to be used with BitsAndDroids Connector and Library.
+***Libraries used:***
+* BitsAndDroids Connector - https://www.bitsanddroids.com/
+* LedControl - https://www.arduinolibraries.info/libraries/led-control
+* OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
+* BigFont.c - Converted from RinkyDinkyElectronics, needs to go into OLED_I2C library folder
+
+***Remarks:***
+* The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
 
 ***UPDATE 2.25 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
 * FIXED: Brightness now changes OLED and LED in 15 steps.
@@ -92,21 +99,3 @@ Arduino code to be used with BitsAndDroids Connector and Library.
 * GPS course display
 * NAV1 and GPS Autopilot ON/OFF (NAV1 mode press OBS1, GPS mode press GPS)
 * ALT and SPD can be switched between radar/indicated and indicated/ground
-
-***Material List:***
-* 1x Arduino Due
-* 3x Rotary encoder with pushbutton (KY-040 or similar)
-* 1x OLED I2C Display 128x64 (monochrome)
-* 1x 8-Digit seven segment display with MAX7219 IC
-* Breadboard Cables
-* Housing (see STLs for 3D Printing) 
-* Standoff Kit (see Picture) 
-
-***Remarks:***
-* The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
-
-***Libraries used:***
-* BitsAndDroids Connector - https://www.bitsanddroids.com/
-* LedControl - https://www.arduinolibraries.info/libraries/led-control
-* OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
-* BigFont.c - Converted from RinkyDinkyElectronics, needs to go into OLED_I2C library folder
