@@ -20,7 +20,8 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 * OLED_I2C - http://www.rinkydinkelectronics.com/library.php?id=79
 * BigFont.c - Converted from RinkyDinkyElectronics, needs to go into OLED_I2C library folder
 
-* ATTENTION!!! BigFont.C and LedControl.h from "libraries" folder have to go into your libraries folder to make the OLED and 7-segment work properly!
+***ATTENTION!!!***
+BigFont.c and LedControl.h from "libraries" folder have to go into your respective libraries folder to make the OLED and 7-segment work properly!
 
 ***Remarks:***
 * The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
