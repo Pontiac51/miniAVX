@@ -64,7 +64,7 @@ int idxApObs = 4;
 int yArr[] = {16, 32, 48}; // 3 mneu items
 int iArr = 0;
 int page = 0;
-String pageArr[] = {"ESS", "AP", "NAV", "MISC"};
+String pageArr[] = {"| ESS  |", "|  AP  |", "| NAV  |", "| MISC |"};
 
 // Init ADF
 int adfDigit = 2;
@@ -304,6 +304,8 @@ void displayOLEDMain(){
   myOLED.update();
 }
 
+// version MIDDLE, page RIGHT
+/*
 void displayOLEDtitle(){
   // myOLED.drawRoundRect(0,0,127,10);
   // myOLED.drawLine(0,14,127,14);
@@ -314,6 +316,22 @@ void displayOLEDtitle(){
     myOLED.print(pageArr[page], RIGHT, 0);
   } else {
     myOLED.print(removePeriodAndZero(BADVersion), RIGHT, 0);
+  }
+  myOLED.setFont(BigFont);
+}
+*/
+
+// version RIGHT, page MIDDLE
+void displayOLEDtitle(){
+  myOLED.drawRect(3, 6, 45, 10);
+  myOLED.drawRect(0, 10, 127, 14);
+  myOLED.setFont(SmallFont);
+  myOLED.print(pageArr[page], LEFT, 0);
+  //myOLED.setFont(TinyFont);
+  if (!showBADversion){
+    myOLED.print("miniAVX " + removePeriodAndZero(version), RIGHT, 0);
+  } else {
+    myOLED.print("BAD " + removePeriodAndZero(BADVersion), RIGHT, 0);
   }
   myOLED.setFont(BigFont);
 }
