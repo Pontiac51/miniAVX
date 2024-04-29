@@ -122,5 +122,12 @@ void onClkStwSelect() {
 }
 
 void onWxSelect() {
-  
+  drawLED = &drawLEDWx;
+  onMainSelect = &onOATSwitch;    
+  onLeftSelect = &onWNDPerpToggle;
+  onLeftCW = NULL;
+  onLeftCCW = NULL;
+  onRightSelect = &onOATToggle;
+  onRightCW = NULL;
+  onRightCCW = NULL;
 }

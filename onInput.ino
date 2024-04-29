@@ -620,3 +620,32 @@ void onShowBADVersion(){
     updateOLED();
   }
 }
+
+void onOATSwitch(){
+  if (!itemsMain[selItem].option){ // 1
+    itemsMain[selItem].entry = "WND  OAT";
+    itemsMain[selItem].option = true;
+  } else { // 2
+    itemsMain[selItem].entry = "WND  SPD";
+    itemsMain[selItem].option = false;
+  }
+  updateOLED(); 
+} 
+
+void onWNDPerpToggle(){
+  if(!showWindPerp){
+    showWindPerp = true;
+  }else{
+    showWindPerp = false;
+  }
+}
+
+void onOATToggle(){
+  if (itemsMain[selItem].option){
+    if(!showOATFahrenheid){
+      showOATFahrenheid = true;
+    }else{
+      showOATFahrenheid = false;
+    }
+  }
+}
