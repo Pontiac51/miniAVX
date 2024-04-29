@@ -623,20 +623,22 @@ void onShowBADVersion(){
 
 void onOATSwitch(){
   if (!itemsMain[selItem].option){ // 1
-    itemsMain[selItem].entry = "WND  OAT";
+    itemsMain[selItem].entry = "WX   OAT";
     itemsMain[selItem].option = true;
   } else { // 2
-    itemsMain[selItem].entry = "WND  SPD";
+    itemsMain[selItem].entry = "WX   WND";
     itemsMain[selItem].option = false;
   }
   updateOLED(); 
 } 
 
 void onWNDPerpToggle(){
-  if(!showWindPerp){
-    showWindPerp = true;
-  }else{
-    showWindPerp = false;
+  if (!itemsMain[selItem].option){
+    if(!showWindPerp){
+      showWindPerp = true;
+    }else{
+      showWindPerp = false;
+    }
   }
 }
 

@@ -7,7 +7,7 @@
 
 String MAJOR = "2";
 String MINOR = "27";
-String PATCH = "0";
+String PATCH = "1";
 String version = MAJOR + "." + MINOR + "." + PATCH;
 String BADConnector = "0.3.3"; // this is the new RUST app (04/2024)
 String BADLibrary = "1.6.7";
@@ -221,7 +221,7 @@ void setup() {
   addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("ADF1 Sby", &onAdfSelect);
   addMenuItem("COM1 Sby", &onComSelect);
-  addMenuItem("WND  SPD", &onWxSelect); 
+  addMenuItem("WX   WND", &onWxSelect); 
   addMenuItem("BRT  INV", &onBrightInvSelect);
 
   // Init OLED

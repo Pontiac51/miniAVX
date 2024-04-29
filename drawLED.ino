@@ -528,6 +528,11 @@ void drawLEDWx(){
     int temp = connectorRX.getOAT();
     */
 
+    lc.setChar(0,7,' ',false);
+    lc.setChar(0,6,' ',false);
+    lc.setChar(0,5,' ',false);
+    lc.setChar(0,4,' ',false);
+
     if(!showOATFahrenheid){ 
       // show Celsius
       if (temp >= 0){
