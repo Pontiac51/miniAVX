@@ -6,7 +6,7 @@
 #define ARDUINO_SAM_DUE
 
 String MAJOR = "2";
-String MINOR = "26";
+String MINOR = "27";
 String PATCH = "0";
 String version = MAJOR + "." + MINOR + "." + PATCH;
 String BADConnector = "0.3.3"; // this is the new RUST app (04/2024)

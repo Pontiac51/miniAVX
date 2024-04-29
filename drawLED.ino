@@ -446,7 +446,7 @@ void drawLEDClk(){
 void drawLEDWx(){
   if(!itemsMain[selItem].option){
     // show wind heading and speed
-    int windHeading = 330;
+    int windHeading = 150;
     int windSpeed = 15;
 
     /* not implemented
@@ -500,10 +500,10 @@ void drawLEDWx(){
 
       if (windHeading >= 0){
         // headwind
-        lc.setChar(0,7,' ',false);
+        lc.setChar(0,7,'h',false);
       } else {
         // tailwind
-        lc.setChar(0,7,'-',false);
+        lc.setChar(0,7,'t',false);
       }
       lc.setChar(0,6,(abs(windHeading)/100)%10,false);
       lc.setChar(0,5,(abs(windHeading)/10)%10,false);
@@ -511,10 +511,10 @@ void drawLEDWx(){
       
       if (windSpeed >= 0){
         // right crosswind
-        lc.setChar(0,3,' ',false);
+        lc.setChar(0,3,'r',false);
       } else {
         // left crosswind
-        lc.setChar(0,3,'-',false);
+        lc.setChar(0,3,'L',false);
       }
       lc.setChar(0,2,(abs(windSpeed)/100)%10,false);
       lc.setChar(0,1,(abs(windSpeed)/10)%10,false);
