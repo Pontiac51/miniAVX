@@ -311,7 +311,7 @@ void displayOLEDtitle(){
   myOLED.print("miniAVX " + version, LEFT, 0);
   //myOLED.setFont(TinyFont);
   if (!showBADversion){
-    myOLED.print(removePeriodAndZero(pageArr[page]), RIGHT, 0);
+    myOLED.print(pageArr[page], RIGHT, 0);
   } else {
     myOLED.print(removePeriodAndZero(BADVersion), RIGHT, 0);
   }
