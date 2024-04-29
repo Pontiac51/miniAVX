@@ -26,8 +26,8 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 ***UPDATE 2.26.0 (BitsAndDroids NEW Rust Connector v0.3.3 & Library v1.6.7)***
 * NEW: Transponder IDENT (setting the mode in development)
 * NEW: Weather menu entry (wind and temperature in development)
-* NEW: Pages with progressbar! The menu now has 12 items which made scrolling to it a bit confusing. Reaching the last item on a page brings up the next page. Page title is also displayed in top right corner. Current pages: Essentials (Trim, Speed, Altitude, Chrono), Autopilot (ALT, VS, HDG, GPS, Transponder), Navigation (NAV, OBS, ADF) and Misc. (COM, WX, SET).
-* ADDED: Switch "Page title <-> BAD Version" on MAIN button on BRT INV page.
+* NEW: Pages with progressbar! The menu now has 12 items which made scrolling to it a bit confusing. Reaching the last item on a page brings up the next page. Page title is also displayed in top left corner. Current pages: Essentials (Trim, Speed, Altitude, Chrono), Autopilot (ALT, VS, HDG, GPS, Transponder), Navigation (NAV, OBS, ADF) and Misc. (COM, WX, SET).
+* ADDED: Switch "miniAVX version <-> BAD Version" on MAIN button on BRT INV page.
 * REMOVED: Transponder 2 (has never been used in BAD or MSFS)
 
 ***UPDATE 2.25.0 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
