@@ -4,15 +4,16 @@ void mainUp()  { //up function. selection sign ">" will move upwards.
     iArr = iArr - 1;
     if (iArr < 0)
     {
-      iArr = 0;
+      iArr = 2;
       if (firstItem > 0){
-        firstItem--;
+        firstItem = firstItem - 3;
       } else {
         iArr = 2;
         firstItem = mainMenuLength - 3;
       }      
     }
     selItem = firstItem + iArr;
+    page = selItem / 3;
     updateOLED();
     scrollLED();
 }
@@ -21,15 +22,16 @@ void mainDown() { // down function. selection sign ">" will move downwards.
     iArr = iArr + 1;
     if (iArr > 2)
     {
-      iArr = 2;
+      iArr = 0;
       if (firstItem < (mainMenuLength - 3)){
-        firstItem++;
+        firstItem = firstItem + 3;
       } else {
         iArr = 0;
         firstItem = 0;
       } 
     }
     selItem = firstItem + iArr;
+    page = selItem / 3;
     updateOLED();
     scrollLED();
 }
@@ -122,6 +124,8 @@ void onAdfSelect12(){
   updateOLED();
 }
 
+// removed as transponder 2 is not used by BAD or MSFS
+/*
 void onXpndrSelect12(){
   if (!itemsMain[selItem].option){ // 1
     itemsMain[selItem].entry = "XPNDR2  ";
@@ -133,6 +137,7 @@ void onXpndrSelect12(){
   xpndrDigit = 3;
   updateOLED();
 }
+*/
 
 void onTrimSwitch(){
   if (!itemsMain[selItem].option){ // 1
@@ -603,5 +608,15 @@ void onTmrDec(){
       }
     }
     milTmrSpan = minsTmr * 60 * 1000 + secsTmr * 1000;
+  }
+}
+
+void onShowBADVersion(){
+  if(!showBADversion){
+    showBADversion = true;
+    updateOLED();
+  } else {
+    showBADversion = false;
+    updateOLED();
   }
 }

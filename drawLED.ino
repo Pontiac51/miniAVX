@@ -161,6 +161,8 @@ void drawLEDXpndr(){
   int state = 0;
   boolean ident = false;
   String mode = "----";
+  // removed as transponder 2 not used by BAD or MSFS
+  /*
   if (!itemsMain[selItem].option){ // 1
     xpndr = connectorRX.getTransponderCode1().toInt();
     state = connectorRX.getTransponderState1();
@@ -170,6 +172,10 @@ void drawLEDXpndr(){
     state = connectorRX.getTransponderState2();
     ident = connectorRX.getTransponderIdent2();
   }
+  */
+  xpndr = connectorRX.getTransponderCode1().toInt();
+  state = connectorRX.getTransponderState1();
+  ident = connectorRX.getTransponderIdent1();
 
   lc.setChar(0,7,(xpndr/1000)%10,false);
   lc.setChar(0,6,(xpndr/100)%10,false);

@@ -5,9 +5,12 @@
 
 #define ARDUINO_SAM_DUE
 
-String version = "2.25";
-String BADConnector = "0.3.2"; // this is the new RUST app (04/2024)
-String BADLibrary = "1.6.6";
+String MAJOR = "2";
+String MINOR = "26";
+String PATCH = "0";
+String version = MAJOR + "." + MINOR + "." + PATCH;
+String BADConnector = "0.3.3"; // this is the new RUST app (04/2024)
+String BADLibrary = "1.6.7";
 String BADVersion = BADConnector + "|" + BADLibrary;
 
 //data type for button
@@ -58,8 +61,10 @@ int idxApAltVs = 2;
 int idxApObs = 4;
 
 // Init Cursor
-int yArr[] = {14, 31, 48};
+int yArr[] = {16, 32, 48}; // 3 mneu items
 int iArr = 0;
+int page = 0;
+String pageArr[] = {"ESS", "AP", "NAV", "MISC"};
 
 // Init ADF
 int adfDigit = 2;
@@ -82,6 +87,7 @@ boolean showZ = false;
 long millisStartStw = 0;
 long millisStw = 0;
 int currStateStw = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
+
 // Timer (counting down)
 long milTmrStart = 0; // start time of timer in millis
 long milTmrSpan = 0;  // preset run time of timer in millis
@@ -172,6 +178,7 @@ extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 int OLEDbright = 17;
 boolean inverted = false;
+boolean showBADversion = false;
 
 // define 7-segment display
 #define REDRAW_INTERVAL 50
@@ -202,12 +209,13 @@ void setup() {
   addMenuItem(pageSPD + "  " + pageALT, &onAltSpeedSelect);
   addMenuItem("CLK  STW", &onClkStwSelect);
   addMenuItem("ALT  V/S", &onAltVsSelect);
-  addMenuItem("HDG  -D>", &onHdgGPSSelect);  
-  addMenuItem("OBS  1-2", &onOBSSelect);
+  addMenuItem("HDG  -D>", &onHdgGPSSelect);
+  addMenuItem("XPNDR   ", &onXpndrSelect);
   addMenuItem("NAV1 Sby", &onNavSelect);
+  addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("ADF1 Sby", &onAdfSelect);
-  addMenuItem("XPNDR1  ", &onXpndrSelect);
-  addMenuItem("COM1 Sby", &onComSelect);  
+  addMenuItem("COM1 Sby", &onComSelect);
+  addMenuItem("WND  OAT", &onWxSelect); 
   addMenuItem("BRT  INV", &onBrightInvSelect);
 
   // Init OLED
@@ -268,21 +276,45 @@ void displayOLEDMain(){
   int x = firstItem+1 % mainMenuLength;
   int y = firstItem+2 % mainMenuLength;
   int z = firstItem+3 % mainMenuLength;
+  int pageX = 0;
+  int pageY = pageX + 31;
   myOLED.clrScr();
   displayOLEDtitle();
+  switch (page){
+    case 0:
+    pageX = 0;
+    break;
+    case 1:
+    pageX = 32;
+    break;
+    case 2:
+    pageX = 64;
+    break;
+    case 3:
+    pageX = 96;
+    break;
+  }
+  pageY = pageX + 31;
+  //myOLED.drawLine(pageX,10,pageY,10);
+  myOLED.drawRect(pageX, 10, pageY, 13);
+  myOLED.drawRect(pageX, 11, pageY, 12);
   invSelected(x, 0, iArr);
   invSelected(y, 1, iArr);
-  invSelected(z, 2, iArr);        
+  invSelected(z, 2, iArr);      
   myOLED.update();
 }
 
 void displayOLEDtitle(){
-  //myOLED.drawRoundRect(0,0,127,10);
-  myOLED.drawLine(0,10,127,10);
+  // myOLED.drawRoundRect(0,0,127,10);
+  // myOLED.drawLine(0,14,127,14);
   myOLED.setFont(SmallFont);
-  myOLED.print("miniAVX " + version, LEFT, 1);
+  myOLED.print("miniAVX " + version, LEFT, 0);
   //myOLED.setFont(TinyFont);
-  myOLED.print(removePeriodAndZero(BADVersion), RIGHT, 1);
+  if (!showBADversion){
+    myOLED.print(removePeriodAndZero(pageArr[page]), RIGHT, 0);
+  } else {
+    myOLED.print(removePeriodAndZero(BADVersion), RIGHT, 0);
+  }
   myOLED.setFont(BigFont);
 }
 
