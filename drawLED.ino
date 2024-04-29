@@ -443,6 +443,122 @@ void drawLEDClk(){
   }
 }
 
+void drawLEDWx(){
+  if(!itemsMain[selItem].option){
+    // show wind heading and speed
+    int windHeading = 330;
+    int windSpeed = 15;
+
+    /* not implemented
+    int windHeading = connector.getWindHeading();
+    int windSpeed = connector.getWindSpeed();
+    */
+
+    if(!showWindPerp){
+      // show wind heading
+      lc.setChar(0,7,' ',false);
+      lc.setChar(0,6,(windHeading/100)%10,false);
+      lc.setChar(0,5,(windHeading/10)%10,false);
+      lc.setChar(0,4,windHeading%10,false);
+      // show wind speed in kts
+      //hopefully wind never exceeds 999 kts
+      if ((windSpeed/100)%10 > 0){
+        // windspeed >= 100 kts
+        lc.setChar(0,3,(windSpeed/100)%10,false);
+        lc.setChar(0,2,(windSpeed/10)%10,false);
+        lc.setChar(0,1,windSpeed%10,false);
+        lc.setChar(0,0,' ',false);
+      } else {
+        lc.setChar(0,3,(windSpeed/10)%10,false);
+        lc.setChar(0,2,windSpeed%10,false);
+        lc.setChar(0,1,' ',false);
+        lc.setChar(0,0,' ',false);
+      }
+    }else{
+      // show head/tail and left/right wind component
+      // get plane heading and wind heading in radians
+      float planeHdgRad = degreesToRadians(0);
+      float windHdgRad = degreesToRadians(windHeading);
+      /* not implemented
+      float planeHeading = degreesToRadians(connectorRX.getPlaneHeading());
+      */
+
+      // Calculate the angle difference
+      float angleDifference = windHdgRad - planeHdgRad;
+
+      // Normalize angle difference to be within -pi to pi
+      if (angleDifference > PI) {
+          angleDifference -= 2 * PI;
+      } else if (angleDifference < -PI) {
+          angleDifference += 2 * PI;
+      }
+
+      // Calculate headwind/tailwind component (forward/aft component)
+      windHeading = round(windSpeed * cos(angleDifference));
+      // Calculate crosswind (left/right) component
+      windSpeed = round(windSpeed * sin(angleDifference));
+
+      if (windHeading >= 0){
+        // headwind
+        lc.setChar(0,7,' ',false);
+      } else {
+        // tailwind
+        lc.setChar(0,7,'-',false);
+      }
+      lc.setChar(0,6,(abs(windHeading)/100)%10,false);
+      lc.setChar(0,5,(abs(windHeading)/10)%10,false);
+      lc.setChar(0,4,abs(windHeading)%10,false);
+      
+      if (windSpeed >= 0){
+        // right crosswind
+        lc.setChar(0,3,' ',false);
+      } else {
+        // left crosswind
+        lc.setChar(0,3,'-',false);
+      }
+      lc.setChar(0,2,(abs(windSpeed)/100)%10,false);
+      lc.setChar(0,1,(abs(windSpeed)/10)%10,false);
+      lc.setChar(0,0,abs(windSpeed)%10,false);
+    }
+  }else{
+    // show OAT
+    int temp = 22;
+
+    /* not implmented
+    int temp = connectorRX.getOAT();
+    */
+
+    if(!showOATFahrenheid){ 
+      // show Celsius
+      if (temp >= 0){
+        lc.setChar(0,3,' ',false);
+      } else {
+        lc.setChar(0,3,'-',false);
+      }
+      // hopefully temp C is never above 99 or below -99
+      lc.setChar(0,2,(temp/10)%10,false);
+      lc.setChar(0,1,temp%10,false);
+      lc.setChar(0,0,'C',false);
+    }else{ 
+      // show Fahrenheid
+      temp = (1.8 * temp) + 32;
+      // hopefully temp C is never below -99
+      if((temp/100)%10 != 0){
+        lc.setChar(0,3,(temp/100)%10,false);
+      } else {
+        if (temp >= 0){
+          lc.setChar(0,3,' ',false);
+        } else {
+          lc.setChar(0,3,'-',false);
+        }
+      }
+      lc.setChar(0,2,(temp/10)%10,false);
+      lc.setChar(0,1,temp%10,false);
+      lc.setChar(0,0,'F',false);
+    }
+  }
+}
+
 void redrawLED() {
   if ((millis() - lastRedraw) >= REDRAW_INTERVAL) {
     if (drawLED != NULL) {

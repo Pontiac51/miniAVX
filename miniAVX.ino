@@ -13,6 +13,8 @@ String BADConnector = "0.3.3"; // this is the new RUST app (04/2024)
 String BADLibrary = "1.6.7";
 String BADVersion = BADConnector + "|" + BADLibrary;
 
+
+
 //data type for button
 struct Button {
   uint8_t gpioSw;
@@ -95,6 +97,10 @@ long milTmrDisp = 0;  // time to show
 int minsTmr = 0;
 int secsTmr = 0;
 int currStateTmr = 0; // 0 = Reset, 1 = Start (running), 2 = Stop
+
+// Weather
+boolean showOATFahrenheid = false;
+boolean showWindPerp = false;
 
 // constructor for menu item
 void addMenuItem(String entry, void (*onSelect)()) {
@@ -215,7 +221,7 @@ void setup() {
   addMenuItem("OBS  1-2", &onOBSSelect);
   addMenuItem("ADF1 Sby", &onAdfSelect);
   addMenuItem("COM1 Sby", &onComSelect);
-  addMenuItem("WND  OAT", &onWxSelect); 
+  addMenuItem("WND  SPD", &onWxSelect); 
   addMenuItem("BRT  INV", &onBrightInvSelect);
 
   // Init OLED
@@ -432,4 +438,9 @@ String removePeriodAndZero(String inputString) {
     
     // Return the modified string
     return inputString;
+}
+
+// Function to convert degrees to radians
+float degreesToRadians(float degrees) {
+    return degrees * (PI / 180.0);
 }
