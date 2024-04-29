@@ -546,7 +546,7 @@ void drawLEDWx(){
       lc.setChar(0,0,'C',false);
     }else{ 
       // show Fahrenheid
-      temp = (1.8 * temp) + 32;
+      temp = round((1.8 * temp) + 32);
       // hopefully temp C is never below -99
       if((temp/100)%10 != 0){
         lc.setChar(0,3,(temp/100)%10,false);
