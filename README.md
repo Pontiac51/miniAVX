@@ -1,4 +1,4 @@
-# miniAVX 2.25 #
+# miniAVX 2.25.0 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
@@ -22,9 +22,10 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 ***Remarks:***
 * The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
 
-***UPDATE 2.25 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
+***UPDATE 2.25.0 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
 * FIXED: Brightness now changes OLED and LED in 15 steps.
 * ADDED: STL files for 3D Printing
+* ADDED: Github versioning
 
 ***UPDATE 2.21 (BitsAndDroids NEW Rust Connector 0.2.18 & Library v1.6.6)***
 * FIXED: AP VS values are now displayed properly.
