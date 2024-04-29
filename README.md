@@ -11,7 +11,7 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 * Display direct course to next waypoint: -D>
 * Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 (with mode & ident)
 * Chronometer (Clock, Stopwatch and customizable Timer)
-* Weather: Wind direction and speed, outside air temperature in C and F (in development)
+* Weather: Wind direction and speed (also in components), outside air temperature in C and F (in development)
 * Adjust brightness and invert display
 
 ***Libraries used:***
