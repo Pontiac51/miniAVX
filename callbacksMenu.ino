@@ -67,7 +67,8 @@ void onAdfSelect() {
 
 void onXpndrSelect() {
     drawLED = &drawLEDXpndr;
-    onMainSelect = &onXpndrSelect12;
+    //onMainSelect = &onXpndrSelect12; // removed as transponder 2 not used by BAD or MSFS
+    onMainSelect = NULL;
     onLeftSelect = &onXpndrNext;
     onLeftCW = &onXpndrIncrease;
     onLeftCCW = &onXpndrDecrease;
@@ -100,7 +101,7 @@ void onTrimSelect() {
 
 void onBrightInvSelect() {
     drawLED = &drawLEDBrightInv;
-    onMainSelect = NULL;   
+    onMainSelect = &onShowBADVersion;   
     onLeftSelect = NULL; 
     onLeftCW = &onBrightIncrease;
     onLeftCCW = &onBrightDecrease;
@@ -118,4 +119,8 @@ void onClkStwSelect() {
     onRightSelect = &onTmrToggle;
     onRightCW = &onTmrInc;
     onRightCCW = &onTmrDec;
+}
+
+void onWxSelect() {
+  
 }

@@ -1,4 +1,4 @@
-# miniAVX 2.25.0 #
+# miniAVX 2.26.0 #
 
 Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
@@ -7,10 +7,11 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 * Display ALT (MSL, AGL), SPD (IAS (knts or Mach), GS) and QNH with adjustment knob
 * Set and display HDG, OBS1 & 2
 * Set and display autopilot values: ALT and V/S
-* Set and display autopilot modes: Master, HDG, ALT, V/S, NAV, GPS (switch only)
+* Set and display autopilot modes: Master, HDG, ALT, V/S, NAV, NAV/GPS switch
 * Display direct course to next waypoint: -D>
-* Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 & 2 (with Mode)
-* Chronometer (Clock, Stopwatch and Timer)
+* Complete Radio Stack: COM1 & 2, NAV1 & 2, ADF1 & 2, XPNDR1 (with mode & ident)
+* Chronometer (Clock, Stopwatch and customizable Timer)
+* Weather: Wind direction and speed, outside air temperature in C and F (in development)
 * Adjust brightness and invert display
 
 ***Libraries used:***
@@ -21,6 +22,13 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 ***Remarks:***
 * The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
+
+***UPDATE 2.26.0 (BitsAndDroids NEW Rust Connector v0.3.3 & Library v1.6.7)***
+* NEW: Transponder IDENT (setting the mode in development)
+* NEW: Weather menu entry (wind and temperature in development)
+* NEW: Pages with progressbar! The menu now has 12 items which made scrolling to it a bit confusing. Reaching the last item on a page brings up the next page. Page title is also displayed in top right corner. Current pages: Essentials (Trim, Speed, Altitude, Chrono), Autopilot (ALT, VS, HDG, GPS, Transponder), Navigation (NAV, OBS, ADF) and Misc. (COM, WX, SET).
+* ADDED: Switch "Page title <-> BAD Version" on MAIN button on BRT INV page.
+* REMOVED: Transponder 2 (has never been used in BAD or MSFS)
 
 ***UPDATE 2.25.0 (BitsAndDroids NEW Rust Connector 0.3.2 & Library v1.6.6)***
 * FIXED: Brightness now changes OLED and LED in 15 steps.
