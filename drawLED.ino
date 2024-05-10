@@ -18,7 +18,8 @@ void drawLEDAltSpd(){
     // show IAS or Mach
     spd = connectorRX.getIndicatedAirspeed();
     if (!showIAS || spd > 999){
-      spd = spd / (38.9439 * sqrt((15 - 0.00357 * connectorRX.getIndicatedAltitude()) + 273.15));
+      float tempK = connectorRX.getAmbientTemperature() + 273.15;
+      spd = spd / (1.94384 * sqrt(1.4 * 287.05 * tempK));
     }
   } else {
     // show Groundspeed
@@ -446,13 +447,10 @@ void drawLEDClk(){
 void drawLEDWx(){
   if(!itemsMain[selItem].option){
     // show wind heading and speed
-    int windHeading = 150;
-    int windSpeed = 15;
-
-    /* not implemented
-    int windHeading = connector.getWindHeading();
-    int windSpeed = connector.getWindSpeed();
-    */
+    int planeHeading = connectorRX.getHeadingTrue();
+    int windHeading = connectorRX.getAmbientWindDirection();
+    float windSpeed = connectorRX.getAmbientWindVelocity();
+    int windSpeedD = 0;
 
     if(!showWindPerp){
       // show wind heading
@@ -462,26 +460,24 @@ void drawLEDWx(){
       lc.setChar(0,4,windHeading%10,false);
       // show wind speed in kts
       //hopefully wind never exceeds 999 kts
-      if ((windSpeed/100)%10 > 0){
-        // windspeed >= 100 kts
-        lc.setChar(0,3,(windSpeed/100)%10,false);
-        lc.setChar(0,2,(windSpeed/10)%10,false);
-        lc.setChar(0,1,windSpeed%10,false);
-        lc.setChar(0,0,' ',false);
+      lc.setChar(0,3,' ',false);
+      if ((round(windSpeed)/100)%10 > 0){
+        // windspeed >= 100 kts        
+        lc.setChar(0,2,(round(windSpeed)/100)%10,false);     
       } else {
-        lc.setChar(0,3,(windSpeed/10)%10,false);
-        lc.setChar(0,2,windSpeed%10,false);
-        lc.setChar(0,1,' ',false);
-        lc.setChar(0,0,' ',false);
+        lc.setChar(0,2,' ',false);        
       }
+      if (((round(windSpeed)/10)%10) > 0){
+        lc.setChar(0,1,(round(windSpeed)/10)%10,false); 
+      } else {
+        lc.setChar(0,1,' ',false); 
+      }
+      lc.setChar(0,0,round(windSpeed)%10,false);
     }else{
       // show head/tail and left/right wind component
       // get plane heading and wind heading in radians
-      float planeHdgRad = degreesToRadians(0);
+      float planeHdgRad = degreesToRadians(planeHeading);
       float windHdgRad = degreesToRadians(windHeading);
-      /* not implemented
-      float planeHeading = degreesToRadians(connectorRX.getPlaneHeading());
-      */
 
       // Calculate the angle difference
       float angleDifference = windHdgRad - planeHdgRad;
@@ -505,9 +501,18 @@ void drawLEDWx(){
         // tailwind
         lc.setChar(0,7,'t',false);
       }
-      lc.setChar(0,6,(abs(windHeading)/100)%10,false);
-      lc.setChar(0,5,(abs(windHeading)/10)%10,false);
-      lc.setChar(0,4,abs(windHeading)%10,false);
+      windHeading = abs(windHeading);
+      if (windHeading > 99){
+        lc.setChar(0,6,(windHeading/100)%10,false);
+      } else {
+        lc.setChar(0,6,' ',false);
+      }
+      if (windHeading > 9){
+        lc.setChar(0,5,(windHeading/10)%10,false);
+      } else {
+        lc.setChar(0,5,' ',false);
+      }
+      lc.setChar(0,4,windHeading%10,false);
       
       if (windSpeed >= 0){
         // right crosswind
@@ -516,17 +521,24 @@ void drawLEDWx(){
         // left crosswind
         lc.setChar(0,3,'L',false);
       }
-      lc.setChar(0,2,(abs(windSpeed)/100)%10,false);
-      lc.setChar(0,1,(abs(windSpeed)/10)%10,false);
-      lc.setChar(0,0,abs(windSpeed)%10,false);
+      windSpeedD = abs(windSpeed);
+      if (windSpeedD > 99){
+        lc.setChar(0,2,(windSpeedD/100)%10,false);
+      } else {
+        lc.setChar(0,2,' ',false);
+      }
+      if (windSpeedD > 9){
+        lc.setChar(0,1,(windSpeedD/10)%10,false);
+      } else {
+        lc.setChar(0,1,' ',false);
+      }
+      lc.setChar(0,0,windSpeedD%10,false);
     }
   }else{
     // show OAT
-    int temp = 22;
-
-    /* not implmented
-    int temp = connectorRX.getOAT();
-    */
+    float temp = connectorRX.getAmbientTemperature();
+    int tempD = 0;
+    bool negTemp = false;
 
     lc.setChar(0,7,' ',false);
     lc.setChar(0,6,' ',false);
@@ -535,31 +547,65 @@ void drawLEDWx(){
 
     if(!showOATFahrenheid){ 
       // show Celsius
-      if (temp >= 0){
-        lc.setChar(0,3,' ',false);
-      } else {
-        lc.setChar(0,3,'-',false);
+      if (temp < 0){
+        negTemp = true;
       }
-      // hopefully temp C is never above 99 or below -99
-      lc.setChar(0,2,(temp/10)%10,false);
-      lc.setChar(0,1,temp%10,false);
-      lc.setChar(0,0,'C',false);
-    }else{ 
-      // show Fahrenheid
-      temp = round((1.8 * temp) + 32);
-      // hopefully temp C is never below -99
-      if((temp/100)%10 != 0){
-        lc.setChar(0,3,(temp/100)%10,false);
+      tempD = abs(round(temp));
+      // temp C in MSFS goes from -90 to +60
+      lc.setChar(0,3,' ',false);
+      if ((tempD/10)%10 == 0){
+        if (!negTemp){
+          lc.setChar(0,2,' ',false);
+        } else {
+          lc.setChar(0,2,'-',false);
+        } 
       } else {
-        if (temp >= 0){
+        if (!negTemp){
           lc.setChar(0,3,' ',false);
         } else {
           lc.setChar(0,3,'-',false);
         }
+        lc.setChar(0,2,(tempD/10)%10,false); 
       }
-      lc.setChar(0,2,(temp/10)%10,false);
-      lc.setChar(0,1,temp%10,false);
+      lc.setChar(0,1,tempD%10,false);
+      lc.setChar(0,0,'C',false);
+    }else{ 
+      // show Fahrenheid
+      temp = (1.8 * temp) + 32;
+      tempD = round(temp);
+      if (tempD < 0){
+        negTemp = true;
+      }
+      tempD = abs(temp);
+      // temp F in MSFS goes from -130 to +140
       lc.setChar(0,0,'F',false);
+      lc.setChar(0,1,tempD%10,false);
+      if (tempD < 10){
+        if (!negTemp){
+          lc.setChar(0,2,' ',false);
+        } else {
+          lc.setChar(0,2,'-',false);
+        }
+        lc.setChar(0,3,' ',false);
+        lc.setChar(0,4,' ',false);
+      } else {
+        lc.setChar(0,2,(tempD/10)%10,false);
+        if (tempD < 100){
+          if (!negTemp){
+            lc.setChar(0,3,' ',false);
+          } else {
+            lc.setChar(0,3,'-',false);
+          }
+          lc.setChar(0,4,' ',false);
+        } else {
+          lc.setChar(0,3,(tempD/100)%10,false); 
+          if (!negTemp){
+            lc.setChar(0,4,' ',false);
+          } else {
+            lc.setChar(0,4,'-',false);
+          }
+        }
+      }      
     }
   }
 }

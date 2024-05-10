@@ -55,7 +55,12 @@ void onSelectGroundSpeed(){
   if (showGS){
     pageSPD = "GS ";
   } else {
-    pageSPD = "IAS";
+    if (!showIAS){
+      pageSPD = "M  ";
+    } else {
+      pageSPD = "IAS";
+    }
+
   }
   itemsMain[selItem].entry = pageSPD + "  " + pageALT;
   updateOLED();
@@ -430,15 +435,23 @@ void onXpndrDecrease(){
 }
 
 void onXpndrIdent(){
-
+  connectorTX.send(104);
 }
 
 void onXpndrModeIncrease(){
-
+  int mode = connectorRX.getTransponderState1() + 1002 + 1;
+  if (mode > 1007){
+    mode = 1002;
+  }
+  connectorTX.send(mode);
 }
 
 void onXpndrModeDecrease(){
-  
+  int mode = connectorRX.getTransponderState1() + 1002 - 1;
+  if (mode < 1002){
+    mode = 1007;
+  }
+  connectorTX.send(mode);  
 }
 
 void onOBS1Increase(){
