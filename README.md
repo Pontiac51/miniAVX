@@ -22,9 +22,18 @@ Mini Avionics Panel with Arduino for Microsoft Flight Simulator 2020 (MSFS)
 
 ***ATTENTION!!!***
 * BigFont.c and LedControl.h from "libraries" folder have to go into their respective libraries folder (OLED_I2C and LedControl/src) to make the OLED and 7-segment work properly!
+* For the transponder mode to work custom events (Events -> Custom Output Settings) need to be created in BAD connector.
 
 ***Remarks:***
 * The programer port is used for TX and the native port for RX. Reason is that a RX on programer port resets the Arduino.
+
+***UPDATE 3.00.0 (BitsAndDroids NEW Rust Connector v0.3.7 & Library v1.6.9)***
+* NEW: Weather module complete (with wind components and OAT in °C and °F)
+* NEW: Transponder mode and ident INPUT
+* NEW: Mach now also uses OAT for calculation
+* FIXED: Groundspeed, temperature and wind speed calculation (rounding error)
+* FIXED: Negative temperature display (double minus or no minus)
+* FIXED: Windspeed displayed without leading zeros ("20" displayed as "020" or "2 ")
 
 ***UPDATE 2.27.1 (BitsAndDroids NEW Rust Connector v0.3.3 & Library v1.6.7)***
 * NEW: Weather Demo (complete with wind components and temperatur in °C and °F)

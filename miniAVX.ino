@@ -5,12 +5,12 @@
 
 #define ARDUINO_SAM_DUE
 
-String MAJOR = "2";
-String MINOR = "27";
-String PATCH = "1";
+String MAJOR = "3";
+String MINOR = "0";
+String PATCH = "0";
 String version = MAJOR + "." + MINOR + "." + PATCH;
-String BADConnector = "0.3.3"; // this is the new RUST app (04/2024)
-String BADLibrary = "1.6.7";
+String BADConnector = "0.3.7"; // this is the new RUST app (04/2024)
+String BADLibrary = "1.6.9";
 String BADVersion = BADConnector + "|" + BADLibrary;
 
 
